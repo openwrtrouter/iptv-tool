@@ -1,0 +1,19 @@
+#!/bin/sh /etc/rc.common
+START=99
+STOP=20
+
+IPTV_HOME=/opt/iptv
+
+start(){
+        nohup $IPTV_HOME/iptv serve -i 24h -p 8088 -u http://192.168.3.1:4022 > $IPTV_HOME/iptv.log 2>&1 &
+}
+
+stop(){
+        # kill your pid
+        kill -9 `ps | grep '$IPTV_HOME/iptv' | grep -v 'grep' | awk '{print $1}'`
+}
+
+restart(){
+        kill -9 `ps | grep '$IPTV_HOME/iptv' | grep -v 'grep' | awk '{print $1}'`
+        nohup $IPTV_HOME/iptv serve -i 24h -p 8088 -u http://192.168.3.1:4022 > $IPTV_HOME/iptv.log 2>&1 &
+}
