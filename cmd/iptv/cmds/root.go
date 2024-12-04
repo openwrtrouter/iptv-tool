@@ -1,8 +1,8 @@
 package cmds
 
 import (
+	"iptv/internal/pkg/util"
 	"os"
-	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -39,7 +39,7 @@ func initConfig() {
 		// 使用命令参数中的配置文件
 		viper.SetConfigFile(cfgFile)
 	} else {
-		cfgHome, err := getCurrentAbPathByExecutable()
+		cfgHome, err := util.GetCurrentAbPathByExecutable()
 		cobra.CheckErr(err)
 
 		viper.AddConfigPath(cfgHome)
@@ -59,14 +59,4 @@ func initConfig() {
 
 	err := viper.ReadInConfig()
 	cobra.CheckErr(err)
-}
-
-// 获取当前执行程序所在的绝对路径
-func getCurrentAbPathByExecutable() (string, error) {
-	exePath, err := os.Executable()
-	if err != nil {
-		return "", err
-	}
-	res, _ := filepath.EvalSymlinks(filepath.Dir(exePath))
-	return res, nil
 }

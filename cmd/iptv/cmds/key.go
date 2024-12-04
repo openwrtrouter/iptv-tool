@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"iptv/internal/app/iptv"
+	"iptv/internal/pkg/util"
 	"os"
 	"path"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 const keyFileName = "key.txt"
@@ -26,7 +28,7 @@ func NewKeyCLI() *cobra.Command {
 			}
 
 			// 获取当前目录
-			currDir, err := getCurrentAbPathByExecutable()
+			currDir, err := util.GetCurrentAbPathByExecutable()
 			if err != nil {
 				return err
 			}
@@ -34,20 +36,22 @@ func NewKeyCLI() *cobra.Command {
 			filePath := path.Join(currDir, keyFileName)
 			file, err := os.Create(filePath)
 			if err != nil {
-				fmt.Println("Failed to create file:", err)
 				return err
 			}
 			defer file.Close()
 
+			// L()：获取全局logger
+			logger := zap.L()
+
 			var keys []string
-			fmt.Println("Start testing 00000000-99999999 all eight digits.")
+			logger.Info("Start testing 00000000-99999999 all eight digits.")
 			// 暴力破解从 00000000 到 99999999 的所有八位数字
 			for x := 0; x < 100000000; x++ {
 				key := fmt.Sprintf("%08d", x)
 
 				// 每尝试 500,000 次输出一次进度
 				if x%500000 == 0 {
-					fmt.Printf("Tried to: -- %s --\n", key)
+					logger.Sugar().Infof("Tried to: -- %s --", key)
 				}
 
 				// 创建 3DES 解密器
@@ -69,16 +73,16 @@ func NewKeyCLI() *cobra.Command {
 				var infoText = fmt.Sprintf("  Random: %s\n  EncryptToken: %s\n  UserID: %s\n  STBID: %s\n  IP: %s\n  MAC: %s\n  Reserved: %s\n  CTC: %s",
 					infos[0], infos[1], infos[2], infos[3], infos[4], infos[5], infos[6], infos[7])
 				line := fmt.Sprintf("Find key: %s, Plaintext: %s\nDetails:\n%s\n\n", key, decodedText, infoText)
-				fmt.Print(line)
+				logger.Info("Find a key.", zap.String("key", key))
 				if _, err = file.WriteString(line); err != nil {
-					fmt.Println("Failed to write to file:", err)
+					logger.Error("Failed to write to file.", zap.Error(err))
 					return err
 				}
 
 				keys = append(keys, key)
 			}
 
-			fmt.Printf("Crack complete! A total of %d keys were found, see file: %s.\n", len(keys), keyFileName)
+			logger.Sugar().Infof("Crack complete! A total of %d keys were found, see file: %s.", len(keys), keyFileName)
 			return nil
 		},
 	}

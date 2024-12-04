@@ -128,13 +128,13 @@ func (c *Client) authLoginHWCTC(ctx context.Context, referer string) (string, er
 // validAuthenticationHWCTC 认证第三步，获取UserToken和cookie中的JSESSIONID
 func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken string) (*Token, error) {
 	// 生成随机的8位数字
-	random := generate8DigitNumber()
+	random := c.generate8DigitNumber()
 
 	var err error
 	// 获取IPv4地址
 	var ipv4Addr string
 	if c.config.InterfaceName != "" {
-		ipv4Addr, err = getInterfaceIPv4Addr(c.config.InterfaceName)
+		ipv4Addr, err = c.getInterfaceIPv4Addr(c.config.InterfaceName)
 		if err != nil {
 			return nil, err
 		}
@@ -236,7 +236,7 @@ func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken stri
 }
 
 // generate8DigitNumber 生成随机8位数字
-func generate8DigitNumber() int {
+func (c *Client) generate8DigitNumber() int {
 	// 设置随机数种子
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	// 生成一个8位数字 (范围：10000000 - 99999999)
@@ -246,7 +246,7 @@ func generate8DigitNumber() int {
 }
 
 // getInterfaceIPv4Addr 获取指定网络接口的IPv4地址
-func getInterfaceIPv4Addr(interfaceName string) (string, error) {
+func (c *Client) getInterfaceIPv4Addr(interfaceName string) (string, error) {
 	iface, err := net.InterfaceByName(interfaceName)
 	if err != nil {
 		return "", err
@@ -265,7 +265,7 @@ func getInterfaceIPv4Addr(interfaceName string) (string, error) {
 		if ipnet, ok := addr.(*net.IPNet); ok && ipnet.IP.To4() != nil {
 			ipv4Addr = ipnet.IP.String()
 			// 输出IPv4地址
-			fmt.Printf("Use network interface %s, IPv4 address: %s\n", iface.Name, ipv4Addr)
+			c.logger.Sugar().Infof("Use network interface %s, IPv4 address: %s", iface.Name, ipv4Addr)
 			break
 		}
 	}

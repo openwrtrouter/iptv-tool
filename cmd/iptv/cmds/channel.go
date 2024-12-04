@@ -2,8 +2,8 @@ package cmds
 
 import (
 	"errors"
-	"fmt"
 	"iptv/internal/app/iptv"
+	"iptv/internal/pkg/util"
 	"net/http"
 	"os"
 	"path"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 const (
@@ -29,6 +30,9 @@ func NewChannelCLI() *cobra.Command {
 		Use:   "channel",
 		Short: "获取频道列表，并按指定格式生成直播源文件。",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// L()：获取全局logger
+			logger := zap.L()
+
 			// 读取IPTV配置
 			var config iptv.Config
 			err := viper.Unmarshal(&config)
@@ -65,14 +69,14 @@ func NewChannelCLI() *cobra.Command {
 
 			// 在当前目录中创建频道文件
 			outFileName := fileName + "." + format
-			currDir, err := getCurrentAbPathByExecutable()
+			currDir, err := util.GetCurrentAbPathByExecutable()
 			if err != nil {
 				return err
 			}
 			filePath := path.Join(currDir, outFileName)
 			file, err := os.Create(filePath)
 			if err != nil {
-				fmt.Println("Failed to create a file:", err)
+				logger.Error("Failed to create a file.", zap.Error(err))
 				return err
 			}
 			defer file.Close()
@@ -95,11 +99,11 @@ func NewChannelCLI() *cobra.Command {
 
 			// 将结果写入文件
 			if _, err = file.WriteString(content); err != nil {
-				fmt.Println("Failed to write to file:", err)
+				logger.Error("Failed to write to file.", zap.Error(err))
 				return err
 			}
 
-			fmt.Printf("A total of %d channels have been found, all of which have been written to the file %s.\n", len(channels), outFileName)
+			logger.Sugar().Infof("A total of %d channels have been found, all of which have been written to the file %s.", len(channels), outFileName)
 
 			return nil
 		},

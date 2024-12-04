@@ -2,12 +2,15 @@ package iptv
 
 import (
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 type Client struct {
 	httpClient *http.Client // HTTP客户端
 	config     *Config      // IPTV配置
 	host       string       // 缓存最新重定向的服务器地址和端口
+	logger     *zap.Logger
 }
 
 func NewClient(httpClient *http.Client, config *Config) (*Client, error) {
@@ -20,6 +23,7 @@ func NewClient(httpClient *http.Client, config *Config) (*Client, error) {
 		httpClient: httpClient,
 		host:       config.ServerHost,
 		config:     config,
+		logger:     zap.L(),
 	}
 	if i.httpClient == nil {
 		i.httpClient = http.DefaultClient

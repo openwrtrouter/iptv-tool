@@ -4,13 +4,13 @@ import (
 	"context"
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"iptv/internal/app/iptv"
 	"net/http"
 	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 var (
@@ -42,7 +42,7 @@ func GetJsonEPG(c *gin.Context) {
 
 	// 校验频道名称是否为空
 	if chName == "" {
-		fmt.Println("The name of the channel is null.")
+		logger.Warn("The name of the channel is null.")
 		// 返回响应
 		c.Status(http.StatusBadRequest)
 		return
@@ -51,7 +51,7 @@ func GetJsonEPG(c *gin.Context) {
 	// 解析日期
 	date, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
-		fmt.Println("Date format error: ", err)
+		logger.Error("Date format error", zap.Error(err))
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -210,7 +210,7 @@ func updateEPG(ctx context.Context, iptvClient *iptv.Client) error {
 
 		progList, err := iptvClient.GetChannelProgramList(ctx, token, channel.ChannelID)
 		if err != nil {
-			fmt.Printf("Failed to get the program list for channel %s. Error: %v\n", channel.ChannelName, err)
+			logger.Sugar().Warnf("Failed to get the program list for channel %s. Error: %v", channel.ChannelName, err)
 			continue
 		}
 		// 将频道名称设置上，方便后续查询
@@ -218,7 +218,7 @@ func updateEPG(ctx context.Context, iptvClient *iptv.Client) error {
 		epg = append(epg, *progList)
 	}
 
-	fmt.Printf("EPG data updated, rows: %d.\n", len(epg))
+	logger.Sugar().Infof("EPG data updated, rows: %d.", len(epg))
 	// 更新缓存的频道列表
 	epgPtr.Store(&epg)
 

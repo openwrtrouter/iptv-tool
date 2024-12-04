@@ -3,13 +3,13 @@ package router
 import (
 	"context"
 	"errors"
-	"fmt"
 	"iptv/internal/app/iptv"
 	"net/http"
 	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 var (
@@ -29,7 +29,7 @@ func GetM3UData(c *gin.Context) {
 	// 将获取到的频道列表转换为m3u格式
 	m3uContent, err := iptv.ToM3UFormat(channels, udpxyURL)
 	if err != nil {
-		fmt.Println("Failed to convert channel list to m3u format: ", err)
+		logger.Error("Failed to convert channel list to m3u format.", zap.Error(err))
 		// 返回响应
 		c.Status(http.StatusOK)
 		return
@@ -51,7 +51,7 @@ func GetTXTData(c *gin.Context) {
 	// 将获取到的频道列表转换为txt格式
 	txtContent, err := iptv.ToTxtFormat(channels, udpxyURL)
 	if err != nil {
-		fmt.Println("Failed to convert channel list to txt format: ", err)
+		logger.Error("Failed to convert channel list to txt format.", zap.Error(err))
 		// 返回响应
 		c.Status(http.StatusOK)
 		return
@@ -66,7 +66,7 @@ func updateChannelsWithRetry(ctx context.Context, iptvClient *iptv.Client, maxRe
 	var err error
 	for i := 0; i < maxRetries; i++ {
 		if err = updateChannels(ctx, iptvClient); err != nil {
-			fmt.Printf("Failed to update channel list, will try again after waiting %d seconds. Error: %v, number of retries: %d.\n", waitSeconds, err, i)
+			logger.Sugar().Errorf("Failed to update channel list, will try again after waiting %d seconds. Error: %v, number of retries: %d.", waitSeconds, err, i)
 			time.Sleep(waitSeconds * time.Second)
 		} else {
 			break
@@ -93,7 +93,7 @@ func updateChannels(ctx context.Context, iptvClient *iptv.Client) error {
 		return errors.New("no channels found")
 	}
 
-	fmt.Printf("The channel list has been updated, rows: %d.\n", len(channels))
+	logger.Sugar().Infof("The channel list has been updated, rows: %d.", len(channels))
 	// 更新缓存的频道列表
 	channelsPtr.Store(&channels)
 

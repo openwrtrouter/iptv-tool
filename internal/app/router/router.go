@@ -6,13 +6,19 @@ import (
 	"net/http"
 	"time"
 
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 var udpxyURL string
+var logger *zap.Logger
 
 func NewEngine(ctx context.Context, interval time.Duration, udpxyURLCfg string) (*gin.Engine, error) {
+	// L()：获取全局logger
+	logger = zap.L()
+
 	gin.SetMode(gin.ReleaseMode)
 
 	// 缓存udpxy配置
@@ -34,7 +40,11 @@ func NewEngine(ctx context.Context, interval time.Duration, udpxyURLCfg string) 
 	Schedule(ctx, iptvClient, interval)
 
 	// 创建 Gin 路由引擎
-	r := gin.Default()
+	r := gin.New()
+
+	// 日志记录
+	r.Use(ginzap.Ginzap(logger, "", false))
+	r.Use(ginzap.RecoveryWithZap(logger, true))
 
 	// 查询直播源-m3u格式
 	r.GET("/channel/m3u", GetM3UData)
