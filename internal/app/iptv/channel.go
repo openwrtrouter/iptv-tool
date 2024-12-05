@@ -15,6 +15,18 @@ import (
 	"time"
 )
 
+const otherGroupName = "其他"
+
+// groupRuleMap 频道分组规则
+var groupRuleMap = map[string]*regexp.Regexp{
+	"央视": regexp.MustCompile("^CCTV.+?$"),
+	"四川": regexp.MustCompile("^SCTV.+?$"),
+	"成都": regexp.MustCompile("^CDTV.+?$"),
+	"卫视": regexp.MustCompile("^[^(热门)].+?卫视.*?$"),
+	"国际": regexp.MustCompile("^CGTN.+?$"),
+	"专区": regexp.MustCompile(".+?专区$"),
+}
+
 type Channel struct {
 	ChannelID       string        `json:"channelID"`       // 频道ID
 	ChannelName     string        `json:"channelName"`     // 频道名称
@@ -22,6 +34,8 @@ type Channel struct {
 	TimeShift       string        `json:"timeShift"`       // 时移类型
 	TimeShiftLength time.Duration `json:"timeShiftLength"` // 支持的时移长度
 	TimeShiftURL    string        `json:"timeShiftURL"`    // 时移地址（回放地址）
+
+	GroupName string `json:"groupName"` // 程序识别的频道分类
 }
 
 // GetChannelList 获取频道列表
@@ -113,6 +127,18 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 			continue
 		}
 
+		// 自动识别频道的分类
+		var groupName string
+		for k, v := range groupRuleMap {
+			if v.MatchString(channelName) {
+				groupName = k
+				break
+			}
+		}
+		if groupName == "" {
+			groupName = otherGroupName
+		}
+
 		channels = append(channels, Channel{
 			ChannelID:       string(matches[1]),
 			ChannelName:     channelName,
@@ -120,6 +146,7 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 			TimeShift:       string(matches[4]),
 			TimeShiftLength: time.Duration(timeShiftLength) * time.Minute,
 			TimeShiftURL:    string(matches[6]),
+			GroupName:       groupName,
 		})
 	}
 	return channels, nil
@@ -144,8 +171,8 @@ func ToM3UFormat(channels []Channel, udpxyURL string) (string, error) {
 		} else {
 			channelURL = channel.ChannelURL.String()
 		}
-		m3uLine := fmt.Sprintf("#EXTINF:-1 ,%s\n%s\n",
-			channel.ChannelName, channelURL)
+		m3uLine := fmt.Sprintf("#EXTINF:-1 group-title=\"%s\",%s\n%s\n",
+			channel.GroupName, channel.ChannelName, channelURL)
 		sb.WriteString(m3uLine)
 	}
 	return sb.String(), nil
@@ -157,22 +184,47 @@ func ToTxtFormat(channels []Channel, udpxyURL string) (string, error) {
 		return "", errors.New("no channels found")
 	}
 
-	var sb strings.Builder
+	// 对频道列表，按分组名称进行分组
+	groupNames := make([]string, 0)
+	groupChannelMap := make(map[string][]Channel)
 	for _, channel := range channels {
-		var err error
-		var channelURL string
-		if udpxyURL != "" {
-			channelURL, err = url.JoinPath(udpxyURL, fmt.Sprintf("/rtp/%s", channel.ChannelURL.Host))
-			if err != nil {
-				return "", err
-			}
-		} else {
-			channelURL = channel.ChannelURL.String()
+		groupChannels, ok := groupChannelMap[channel.GroupName]
+		if !ok {
+			groupNames = append(groupNames, channel.GroupName)
+			groupChannelMap[channel.GroupName] = []Channel{channel}
+			continue
 		}
 
-		m3uLine := fmt.Sprintf("%s,%s\n",
-			channel.ChannelName, channelURL)
-		sb.WriteString(m3uLine)
+		groupChannels = append(groupChannels, channel)
+		groupChannelMap[channel.GroupName] = groupChannels
+	}
+
+	var sb strings.Builder
+	// 为保证顺序，单独遍历分组名称的slices
+	for _, groupName := range groupNames {
+		groupChannels := groupChannelMap[groupName]
+
+		// 输出分组信息
+		groupLine := fmt.Sprintf("%s,#genre#\n", groupName)
+		sb.WriteString(groupLine)
+
+		// 输出频道信息
+		for _, channel := range groupChannels {
+			var err error
+			var channelURL string
+			if udpxyURL != "" {
+				channelURL, err = url.JoinPath(udpxyURL, fmt.Sprintf("/rtp/%s", channel.ChannelURL.Host))
+				if err != nil {
+					return "", err
+				}
+			} else {
+				channelURL = channel.ChannelURL.String()
+			}
+
+			txtLine := fmt.Sprintf("%s,%s\n",
+				channel.ChannelName, channelURL)
+			sb.WriteString(txtLine)
+		}
 	}
 	return sb.String(), nil
 }

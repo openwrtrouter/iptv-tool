@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"iptv/internal/app/router"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 var httpConfig HttpConfig
@@ -52,6 +54,9 @@ func NewServeCLI() *cobra.Command {
 			if err != nil {
 				return err
 			}
+			// L()：获取全局logger
+			logger := zap.L()
+			logger.Info("Start the http service.", zap.String("port", strconv.Itoa(httpConfig.Port)))
 			if err = r.Run(fmt.Sprintf(":%d", httpConfig.Port)); err != nil {
 				return err
 			}
