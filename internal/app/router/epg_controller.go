@@ -13,6 +13,11 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	xmltvGenInfoName = "iptv-tool"
+	xmltvGenInfoUrl  = "https://github.com/super321/iptv-tool"
+)
+
 var (
 	// 缓存最新的节目单数据
 	epgPtr atomic.Pointer[[]iptv.ChannelProgramList]
@@ -143,7 +148,10 @@ func GetXmlEPG(c *gin.Context) {
 	// 如果缓存的节目单列表为空则直接返回空数据
 	chProgLists := *epgPtr.Load()
 	if len(chProgLists) == 0 {
-		c.XML(http.StatusOK, &XmlEPG{})
+		c.XML(http.StatusOK, &XmlEPG{
+			GeneratorInfoName: xmltvGenInfoName,
+			GeneratorInfoUrl:  xmltvGenInfoUrl,
+		})
 		return
 	}
 
@@ -183,8 +191,10 @@ func GetXmlEPG(c *gin.Context) {
 	}
 
 	c.XML(http.StatusOK, &XmlEPG{
-		Channels:   channels,
-		Programmes: programmes,
+		GeneratorInfoName: xmltvGenInfoName,
+		GeneratorInfoUrl:  xmltvGenInfoUrl,
+		Channels:          channels,
+		Programmes:        programmes,
 	})
 }
 

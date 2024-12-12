@@ -181,12 +181,12 @@ func ToM3UFormat(channels []Channel, udpxyURL string) (string, error) {
 		}
 		var m3uLine string
 		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 {
-			m3uLine = fmt.Sprintf("#EXTINF:-1 catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\" group-title=\"%s\",%s\n%s\n",
-				"default", channel.TimeShiftURL.String()+"?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}",
+			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\" group-title=\"%s\",%s\n%s\n",
+				channel.ChannelID, "default", channel.TimeShiftURL.String()+"?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}",
 				int64(channel.TimeShiftLength.Hours()/24), channel.GroupName, channel.ChannelName, channelURL)
 		} else {
-			m3uLine = fmt.Sprintf("#EXTINF:-1 group-title=\"%s\",%s\n%s\n",
-				channel.GroupName, channel.ChannelName, channelURL)
+			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" group-title=\"%s\",%s\n%s\n",
+				channel.ChannelID, channel.GroupName, channel.ChannelName, channelURL)
 		}
 		sb.WriteString(m3uLine)
 	}
