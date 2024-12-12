@@ -33,7 +33,7 @@ type Channel struct {
 	ChannelURL      *url.URL      `json:"channelURL"`      // 频道URL
 	TimeShift       string        `json:"timeShift"`       // 时移类型
 	TimeShiftLength time.Duration `json:"timeShiftLength"` // 支持的时移长度
-	TimeShiftURL    string        `json:"timeShiftURL"`    // 时移地址（回放地址）
+	TimeShiftURL    *url.URL      `json:"timeShiftURL"`    // 时移地址（回放地址）
 
 	GroupName string `json:"groupName"` // 程序识别的频道分类
 }
@@ -127,6 +127,14 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 			continue
 		}
 
+		// 解析时移地址
+		timeShiftURL, err := url.Parse(string(matches[6]))
+		if err != nil {
+			continue
+		}
+		// 重置时移地址的查询参数
+		timeShiftURL.RawQuery = ""
+
 		// 自动识别频道的分类
 		var groupName string
 		for k, v := range groupRuleMap {
@@ -145,7 +153,7 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 			ChannelURL:      channelURL,
 			TimeShift:       string(matches[4]),
 			TimeShiftLength: time.Duration(timeShiftLength) * time.Minute,
-			TimeShiftURL:    string(matches[6]),
+			TimeShiftURL:    timeShiftURL,
 			GroupName:       groupName,
 		})
 	}
@@ -171,8 +179,15 @@ func ToM3UFormat(channels []Channel, udpxyURL string) (string, error) {
 		} else {
 			channelURL = channel.ChannelURL.String()
 		}
-		m3uLine := fmt.Sprintf("#EXTINF:-1 group-title=\"%s\",%s\n%s\n",
-			channel.GroupName, channel.ChannelName, channelURL)
+		var m3uLine string
+		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 {
+			m3uLine = fmt.Sprintf("#EXTINF:-1 catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\" group-title=\"%s\",%s\n%s\n",
+				"default", channel.TimeShiftURL.String()+"?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}",
+				int64(channel.TimeShiftLength.Hours()/24), channel.GroupName, channel.ChannelName, channelURL)
+		} else {
+			m3uLine = fmt.Sprintf("#EXTINF:-1 group-title=\"%s\",%s\n%s\n",
+				channel.GroupName, channel.ChannelName, channelURL)
+		}
 		sb.WriteString(m3uLine)
 	}
 	return sb.String(), nil
