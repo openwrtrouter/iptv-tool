@@ -70,7 +70,7 @@ IPTV工具，功能列表如下：
 ```
 
 说明：-i指定频道和EPG更新间隔时间，-p指定启动的http服务的端口，-u指定udpxy的http地址
-更多命令参数说明可通过命令查看 
+更多命令参数说明可通过命令查看
 
 ```
 ./iptv serve -h
@@ -78,25 +78,32 @@ IPTV工具，功能列表如下：
 
 ### HTTP API
 
-m3u格式直播源在线接口
+* m3u格式直播源在线接口
 
 ```
-http://IP:PORT/channel/m3u
-```  
+http://IP:PORT/channel/m3u?csFormat={format}
+```
 
-txt格式直播源在线接口
+参数csFormat可指定回看catchup-source的请求格式，非必填。可选值如下：
+
+| 值 | 是否缺省 | 说明                                                    |
+|---|------|-------------------------------------------------------|
+| 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
+| 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
+
+* txt格式直播源在线接口
 
 ```
 http://IP:PORT/channel/txt
 ```  
 
-json格式EPG
+* json格式EPG
 
 ```
 http://IP:PORT/epg/json?ch={name}&date={date}
 ```  
 
-xmltv格式EPG
+* xmltv格式EPG
 
 ```
 http://IP:PORT/epg/xml

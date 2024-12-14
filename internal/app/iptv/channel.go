@@ -161,7 +161,7 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 }
 
 // ToM3UFormat 转换为M3U格式内容
-func ToM3UFormat(channels []Channel, udpxyURL string) (string, error) {
+func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string) (string, error) {
 	if len(channels) == 0 {
 		return "", errors.New("no channels found")
 	}
@@ -182,7 +182,7 @@ func ToM3UFormat(channels []Channel, udpxyURL string) (string, error) {
 		var m3uLine string
 		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 {
 			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\" group-title=\"%s\",%s\n%s\n",
-				channel.ChannelID, "default", channel.TimeShiftURL.String()+"?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}",
+				channel.ChannelID, "default", channel.TimeShiftURL.String()+catchupSource,
 				int64(channel.TimeShiftLength.Hours()/24), channel.GroupName, channel.ChannelName, channelURL)
 		} else {
 			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" group-title=\"%s\",%s\n%s\n",

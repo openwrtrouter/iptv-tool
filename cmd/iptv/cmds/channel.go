@@ -23,6 +23,7 @@ var (
 	supportFileFormat = []string{"txt", "m3u"}
 	udpxyURL          string
 	format            string
+	catchupSource     string
 )
 
 func NewChannelCLI() *cobra.Command {
@@ -91,7 +92,7 @@ func NewChannelCLI() *cobra.Command {
 				}
 			case "m3u":
 				// 将获取到的频道列表转换为M3U格式
-				content, err = iptv.ToM3UFormat(channels, udpxyURL)
+				content, err = iptv.ToM3UFormat(channels, udpxyURL, catchupSource)
 				if err != nil {
 					return err
 				}
@@ -111,6 +112,7 @@ func NewChannelCLI() *cobra.Command {
 
 	channelCmd.Flags().StringVarP(&udpxyURL, "udpxy", "u", "", "如果有安装udpxy进行组播转单播，请配置HTTP地址，e.g `http://192.168.1.1:4022`。")
 	channelCmd.Flags().StringVarP(&format, "format", "f", "m3u", "生成的直播源文件格式，e.g `m3u或txt`。")
+	channelCmd.Flags().StringVarP(&catchupSource, "catchup-source", "s", "?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}", "回看的请求格式字符串，会追加在时移地址后面。")
 
 	return channelCmd
 }

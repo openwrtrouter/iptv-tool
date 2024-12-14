@@ -12,6 +12,11 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	diypCatchupSource string = "?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}"
+	kodiCatchupSource string = "?playseek={utc:YmdHMS}-{utcend:YmdHMS}"
+)
+
 var (
 	// 缓存最新的频道列表数据
 	channelsPtr atomic.Pointer[[]iptv.Channel]
@@ -19,6 +24,16 @@ var (
 
 // GetM3UData 查询直播源m3u
 func GetM3UData(c *gin.Context) {
+	// 获取catchup-source格式
+	var catchupSource string
+	csFormat := c.DefaultQuery("csFormat", "0")
+	switch csFormat {
+	case "1":
+		catchupSource = kodiCatchupSource
+	default:
+		catchupSource = diypCatchupSource
+	}
+
 	channels := *channelsPtr.Load()
 
 	if len(channels) == 0 {
@@ -27,7 +42,7 @@ func GetM3UData(c *gin.Context) {
 	}
 
 	// 将获取到的频道列表转换为m3u格式
-	m3uContent, err := iptv.ToM3UFormat(channels, udpxyURL)
+	m3uContent, err := iptv.ToM3UFormat(channels, udpxyURL, catchupSource)
 	if err != nil {
 		logger.Error("Failed to convert channel list to m3u format.", zap.Error(err))
 		// 返回响应
