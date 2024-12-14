@@ -30,6 +30,7 @@ var groupRuleMap = map[string]*regexp.Regexp{
 type Channel struct {
 	ChannelID       string        `json:"channelID"`       // 频道ID
 	ChannelName     string        `json:"channelName"`     // 频道名称
+	UserChannelID   string        `json:"userChannelID"`   // 频道号
 	ChannelURL      *url.URL      `json:"channelURL"`      // 频道URL
 	TimeShift       string        `json:"timeShift"`       // 时移类型
 	TimeShiftLength time.Duration `json:"timeShiftLength"` // 支持的时移长度
@@ -94,7 +95,7 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 	if err != nil {
 		return nil, err
 	}
-	chRegex := regexp.MustCompile("ChannelID=\"(.+?)\",ChannelName=\"(.+?)\",UserChannelID=\".+?\",ChannelURL=\"(.+?)\",TimeShift=\"(.+?)\",TimeShiftLength=\"(\\d+?)\".+?,TimeShiftURL=\"(.+?)\"")
+	chRegex := regexp.MustCompile("ChannelID=\"(.+?)\",ChannelName=\"(.+?)\",UserChannelID=\"(.+?)\",ChannelURL=\"(.+?)\",TimeShift=\"(.+?)\",TimeShiftLength=\"(\\d+?)\".+?,TimeShiftURL=\"(.+?)\"")
 	matchesList := chRegex.FindAllSubmatch(result, -1)
 	if matchesList == nil {
 		return nil, fmt.Errorf("failed to extract channel list")
@@ -105,7 +106,7 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 
 	channels := make([]Channel, 0, len(matchesList))
 	for _, matches := range matchesList {
-		if len(matches) != 7 {
+		if len(matches) != 8 {
 			continue
 		}
 
@@ -116,19 +117,19 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 		}
 
 		// channelURL类型转换
-		channelURL, err := url.Parse(string(matches[3]))
+		channelURL, err := url.Parse(string(matches[4]))
 		if err != nil {
 			continue
 		}
 
 		// TimeShiftLength类型转换
-		timeShiftLength, err := strconv.ParseInt(string(matches[5]), 10, 64)
+		timeShiftLength, err := strconv.ParseInt(string(matches[6]), 10, 64)
 		if err != nil {
 			continue
 		}
 
 		// 解析时移地址
-		timeShiftURL, err := url.Parse(string(matches[6]))
+		timeShiftURL, err := url.Parse(string(matches[7]))
 		if err != nil {
 			continue
 		}
@@ -150,8 +151,9 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 		channels = append(channels, Channel{
 			ChannelID:       string(matches[1]),
 			ChannelName:     channelName,
+			UserChannelID:   string(matches[3]),
 			ChannelURL:      channelURL,
-			TimeShift:       string(matches[4]),
+			TimeShift:       string(matches[5]),
 			TimeShiftLength: time.Duration(timeShiftLength) * time.Minute,
 			TimeShiftURL:    timeShiftURL,
 			GroupName:       groupName,
@@ -181,12 +183,12 @@ func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string) (string, er
 		}
 		var m3uLine string
 		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 {
-			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\" group-title=\"%s\",%s\n%s\n",
-				channel.ChannelID, "default", channel.TimeShiftURL.String()+catchupSource,
+			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" tvg-chno=\"%s\" catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\" group-title=\"%s\",%s\n%s\n",
+				channel.ChannelID, channel.UserChannelID, "default", channel.TimeShiftURL.String()+catchupSource,
 				int64(channel.TimeShiftLength.Hours()/24), channel.GroupName, channel.ChannelName, channelURL)
 		} else {
-			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" group-title=\"%s\",%s\n%s\n",
-				channel.ChannelID, channel.GroupName, channel.ChannelName, channelURL)
+			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" tvg-chno=\"%s\" group-title=\"%s\",%s\n%s\n",
+				channel.ChannelID, channel.UserChannelID, channel.GroupName, channel.ChannelName, channelURL)
 		}
 		sb.WriteString(m3uLine)
 	}
