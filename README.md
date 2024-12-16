@@ -109,6 +109,12 @@ http://IP:PORT/epg/json?ch={name}&date={date}
 http://IP:PORT/epg/xml
 ```  
 
+* xmltv格式EPG（gzip压缩）
+
+```
+http://IP:PORT/epg/xml.gz
+```  
+
 ## 免责声明
 
 在使用本项目之前，请仔细阅读以下免责声明：

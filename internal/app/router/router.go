@@ -55,6 +55,7 @@ func NewEngine(ctx context.Context, interval time.Duration, udpxyURLCfg string) 
 	r.GET("/epg/json", GetJsonEPG)
 	// 查询EPG-xml格式
 	r.GET("/epg/xml", GetXmlEPG)
+	r.GET("/epg/xml.gz", GetXmlEPGWithGzip)
 
 	// 查询直播配置接口
 	r.GET("/config/lives", GetLivesConfig)

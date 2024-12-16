@@ -1,9 +1,11 @@
 package router
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"iptv/internal/app/iptv"
 	"net/http"
 	"sync/atomic"
@@ -16,6 +18,8 @@ import (
 const (
 	xmltvGenInfoName = "iptv-tool"
 	xmltvGenInfoUrl  = "https://github.com/super321/iptv-tool"
+
+	xmltvGzipFilename = "epg.xml.gz"
 )
 
 var (
@@ -155,6 +159,59 @@ func GetXmlEPG(c *gin.Context) {
 		return
 	}
 
+	xmlEPG := getXmlEPG(chProgLists)
+
+	c.XML(http.StatusOK, xmlEPG)
+}
+
+func GetXmlEPGWithGzip(c *gin.Context) {
+	var xmlEPG *XmlEPG
+
+	// 如果缓存的节目单列表为空则直接返回空数据
+	chProgLists := *epgPtr.Load()
+	if len(chProgLists) == 0 {
+		xmlEPG = &XmlEPG{
+			GeneratorInfoName: xmltvGenInfoName,
+			GeneratorInfoUrl:  xmltvGenInfoUrl,
+		}
+	} else {
+		xmlEPG = getXmlEPG(chProgLists)
+	}
+
+	// 将结构体数据转换为XML，并进行格式化
+	xmlData, err := xml.MarshalIndent(xmlEPG, "", "  ")
+	if err != nil {
+		logger.Error("Failed to marshal xml.", zap.Error(err))
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	// 设置HTTP头，通知浏览器这是一个二进制流文件
+	c.Header("Transfer-Encoding", "gzip")                                                      // 说明文件是gzip压缩格式
+	c.Header("Content-Type", "application/octet-stream")                                       // 说明是二进制文件
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", xmltvGzipFilename)) // 指定下载文件名
+
+	// 创建一个gzip压缩的Writer，并将XML数据写入其中
+	gzipWriter := gzip.NewWriter(c.Writer)
+	defer gzipWriter.Close()
+
+	// 写入xml头
+	if _, err = gzipWriter.Write([]byte("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")); err != nil {
+		logger.Error("Failed to write xml header.", zap.Error(err))
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	// 写入xml内容
+	if _, err = gzipWriter.Write(xmlData); err != nil {
+		logger.Error("Failed to write xml data.", zap.Error(err))
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+}
+
+// getXmlEPG 将频道节目单转为xmltv格式
+func getXmlEPG(chProgLists []iptv.ChannelProgramList) *XmlEPG {
 	channels := make([]XmlEPGChannel, 0, len(chProgLists))
 	programmes := make([]XmlEPGProgramme, 0)
 	for _, chProgList := range chProgLists {
@@ -190,12 +247,12 @@ func GetXmlEPG(c *gin.Context) {
 		}
 	}
 
-	c.XML(http.StatusOK, &XmlEPG{
+	return &XmlEPG{
 		GeneratorInfoName: xmltvGenInfoName,
 		GeneratorInfoUrl:  xmltvGenInfoUrl,
 		Channels:          channels,
 		Programmes:        programmes,
-	})
+	}
 }
 
 // updateEPG 更新缓存的节目单数据
