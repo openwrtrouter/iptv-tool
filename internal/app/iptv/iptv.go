@@ -38,7 +38,5 @@ func (c *Client) setCommonHeaders(req *http.Request) {
 	req.Header.Set("Accept-Language", "zh-CN,en-US;q=0.8")
 	if c.config.XRequestedWith != "" {
 		req.Header.Set("X-Requested-With", c.config.XRequestedWith)
-	} else {
-		req.Header.Set("X-Requested-With", "com.fiberhome.iptv")
 	}
 }
