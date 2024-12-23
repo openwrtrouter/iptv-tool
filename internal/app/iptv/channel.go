@@ -17,18 +17,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const otherGroupName = "其他"
-
-// groupRuleMap 频道分组规则
-var groupRuleMap = map[string]*regexp.Regexp{
-	"央视": regexp.MustCompile("^CCTV.+?$"),
-	"四川": regexp.MustCompile("^SCTV.+?$"),
-	"成都": regexp.MustCompile("^CDTV.+?$"),
-	"卫视": regexp.MustCompile("^[^(热门)].+?卫视.*?$"),
-	"国际": regexp.MustCompile("^CGTN.+?$"),
-	"专区": regexp.MustCompile(".+?专区$"),
-}
-
 type Channel struct {
 	ChannelID       string        `json:"channelID"`       // 频道ID
 	ChannelName     string        `json:"channelName"`     // 频道名称
@@ -156,16 +144,7 @@ func (c *Client) GetChannelList(ctx context.Context, token *Token) ([]Channel, e
 		timeShiftURL.RawQuery = ""
 
 		// 自动识别频道的分类
-		var groupName string
-		for k, v := range groupRuleMap {
-			if v.MatchString(channelName) {
-				groupName = k
-				break
-			}
-		}
-		if groupName == "" {
-			groupName = otherGroupName
-		}
+		groupName := getChannelGroupName(channelName)
 
 		channels = append(channels, Channel{
 			ChannelID:       string(matches[1]),
