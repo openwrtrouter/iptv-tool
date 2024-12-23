@@ -28,6 +28,7 @@ type Config struct {
 	UserField        string `json:"userField,omitempty"`
 	SoftwareVersion  string `json:"softwareVersion"`
 	IsSmartStb       string `json:"isSmartStb,omitempty"`
+	Vip              string `json:"vip,omitempty"`
 }
 
 func (c *Config) Validate() error {

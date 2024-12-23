@@ -29,7 +29,8 @@ IPTV工具，功能列表如下：
   "mac": "",
   "userField": "",
   "softwareVersion": "",
-  "isSmartStb": ""
+  "isSmartStb": "",
+  "vip": ""
 }
 ```
 

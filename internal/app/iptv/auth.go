@@ -82,7 +82,7 @@ func (c *Client) authLoginHWCTC(ctx context.Context, referer string) (string, er
 	// 组装请求数据
 	data := map[string]string{
 		"UserID": c.config.UserID,
-		"VIP":    "",
+		"VIP":    c.config.Vip,
 	}
 	body := url.Values{}
 	for k, v := range data {
@@ -177,7 +177,7 @@ func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken stri
 		"stbmaker":         "",
 		"XMPPCapability":   "",
 		"ChipID":           "",
-		"VIP":              "",
+		"VIP":              c.config.Vip,
 	}
 	body := url.Values{}
 	for k, v := range data {
