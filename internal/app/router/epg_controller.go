@@ -256,38 +256,22 @@ func getXmlEPG(chProgLists []iptv.ChannelProgramList) *XmlEPG {
 }
 
 // updateEPG 更新缓存的节目单数据
-func updateEPG(ctx context.Context, iptvClient *iptv.Client) error {
+func updateEPG(ctx context.Context, iptvClient iptv.Client) error {
+	// 获取缓存的所有频道列表
 	channels := *channelsPtr.Load()
 	if len(channels) == 0 {
 		return errors.New("no channels")
 	}
 
-	// 登录认证获取Token等信息
-	token, err := iptvClient.GenerateToken(ctx)
+	// 获取所有频道的节目单列表
+	allChProgramList, err := iptvClient.GetAllChannelProgramList(ctx, channels)
 	if err != nil {
 		return err
 	}
 
-	epg := make([]iptv.ChannelProgramList, 0, len(channels))
-	for _, channel := range channels {
-		// 跳过不支持回看的频道
-		if channel.TimeShift != "1" || channel.TimeShiftLength <= 0 {
-			continue
-		}
-
-		progList, err := iptvClient.GetChannelProgramList(ctx, token, channel.ChannelID)
-		if err != nil {
-			logger.Sugar().Warnf("Failed to get the program list for channel %s. Error: %v", channel.ChannelName, err)
-			continue
-		}
-		// 将频道名称设置上，方便后续查询
-		progList.ChannelName = channel.ChannelName
-		epg = append(epg, *progList)
-	}
-
-	logger.Sugar().Infof("EPG data updated, rows: %d.", len(epg))
+	logger.Sugar().Infof("EPG data updated, rows: %d.", len(allChProgramList))
 	// 更新缓存的频道列表
-	epgPtr.Store(&epg)
+	epgPtr.Store(&allChProgramList)
 
 	return nil
 }

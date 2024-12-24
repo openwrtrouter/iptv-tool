@@ -3,6 +3,7 @@ package router
 import (
 	"context"
 	"iptv/internal/app/iptv"
+	"iptv/internal/app/iptv/cdt"
 	"net/http"
 	"time"
 
@@ -64,7 +65,7 @@ func NewEngine(ctx context.Context, interval time.Duration, udpxyURLCfg string) 
 }
 
 // initData 初始化数据
-func initData(ctx context.Context, iptvClient *iptv.Client) error {
+func initData(ctx context.Context, iptvClient iptv.Client) error {
 	// 更新频道列表数据
 	if err := updateChannelsWithRetry(ctx, iptvClient, 3); err != nil {
 		return err
@@ -78,7 +79,7 @@ func initData(ctx context.Context, iptvClient *iptv.Client) error {
 }
 
 // newIPTVClient 读取配置文件并创建IPTV客户端
-func newIPTVClient() (*iptv.Client, error) {
+func newIPTVClient() (iptv.Client, error) {
 	// 读取IPTV配置
 	var config iptv.Config
 	err := viper.Unmarshal(&config)
@@ -87,7 +88,7 @@ func newIPTVClient() (*iptv.Client, error) {
 	}
 
 	// 创建IPTV客户端
-	return iptv.NewClient(&http.Client{
+	return cdt.NewClient(&http.Client{
 		Timeout: 10 * time.Second,
 	}, &config)
 }

@@ -3,6 +3,7 @@ package cmds
 import (
 	"errors"
 	"iptv/internal/app/iptv"
+	"iptv/internal/app/iptv/cdt"
 	"iptv/internal/pkg/util"
 	"net/http"
 	"os"
@@ -42,20 +43,15 @@ func NewChannelCLI() *cobra.Command {
 			}
 
 			// 创建IPTV客户端
-			i, err := iptv.NewClient(&http.Client{
+			i, err := cdt.NewClient(&http.Client{
 				Timeout: 10 * time.Second,
 			}, &config)
 			if err != nil {
 				return err
 			}
 
-			// IPTV认证
-			token, err := i.GenerateToken(cmd.Context())
-			if err != nil {
-				return err
-			}
 			// 获取频道列表
-			channels, err := i.GetChannelList(cmd.Context(), token)
+			channels, err := i.GetAllChannelList(cmd.Context())
 			if err != nil {
 				return err
 			}

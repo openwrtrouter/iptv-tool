@@ -77,7 +77,7 @@ func GetTXTData(c *gin.Context) {
 }
 
 // updateChannelsWithRetry 更新缓存的频道数据（失败重试）
-func updateChannelsWithRetry(ctx context.Context, iptvClient *iptv.Client, maxRetries int) error {
+func updateChannelsWithRetry(ctx context.Context, iptvClient iptv.Client, maxRetries int) error {
 	var err error
 	for i := 0; i < maxRetries; i++ {
 		if err = updateChannels(ctx, iptvClient); err != nil {
@@ -91,15 +91,9 @@ func updateChannelsWithRetry(ctx context.Context, iptvClient *iptv.Client, maxRe
 }
 
 // updateChannels 更新缓存的频道数据
-func updateChannels(ctx context.Context, iptvClient *iptv.Client) error {
-	// 登录认证获取Token等信息
-	token, err := iptvClient.GenerateToken(ctx)
-	if err != nil {
-		return err
-	}
-
+func updateChannels(ctx context.Context, iptvClient iptv.Client) error {
 	// 查询最新的频道列表
-	channels, err := iptvClient.GetChannelList(ctx, token)
+	channels, err := iptvClient.GetAllChannelList(ctx)
 	if err != nil {
 		return err
 	}

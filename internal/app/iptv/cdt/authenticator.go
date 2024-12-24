@@ -1,10 +1,11 @@
-package iptv
+package cdt
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"io"
+	"iptv/internal/app/iptv"
 	"math/rand"
 	"net"
 	"net/http"
@@ -21,8 +22,8 @@ type Token struct {
 	JSESSIONID string `json:"jsessionid"`
 }
 
-// GenerateToken 认证并生成oken
-func (c *Client) GenerateToken(ctx context.Context) (*Token, error) {
+// requestToken 请求认证的Token
+func (c *Client) requestToken(ctx context.Context) (*Token, error) {
 	// 访问登录页面
 	referer, err := c.authenticationURL(ctx, true)
 	if err != nil {
@@ -147,7 +148,7 @@ func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken stri
 	input := fmt.Sprintf("%d$%s$%s$%s$%s$%s$$CTC",
 		random, encryptToken, c.config.UserID, c.config.STBID, ipv4Addr, c.config.MAC)
 	// 使用3DES加密生成Authenticator
-	crypto := NewTripleDESCrypto(c.config.Key)
+	crypto := iptv.NewTripleDESCrypto(c.config.Key)
 	authenticator, err := crypto.ECBEncrypt(input)
 	if err != nil {
 		return nil, err

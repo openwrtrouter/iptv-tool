@@ -11,7 +11,7 @@ import (
 const waitSeconds = 30
 
 // Schedule 定时调度更新缓存数据
-func Schedule(ctx context.Context, iptvClient *iptv.Client, duration time.Duration) {
+func Schedule(ctx context.Context, iptvClient iptv.Client, duration time.Duration) {
 	// 创建定时任务
 	ticker := time.NewTicker(duration)
 	go func() {
