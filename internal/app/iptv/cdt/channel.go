@@ -86,7 +86,7 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 	}
 
 	// 过滤掉特殊频道的正则表达式
-	chExcludeRegex := regexp.MustCompile("^.+?(画中画|单音轨)$")
+	chExcludeRegex := regexp.MustCompile("^.+?(画中画|单音轨|-体验)$")
 
 	channels := make([]iptv.Channel, 0, len(matchesList))
 	for _, matches := range matchesList {
