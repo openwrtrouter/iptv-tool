@@ -1,9 +1,8 @@
-package cdt
+package ct
 
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"iptv/internal/app/iptv"
@@ -12,39 +11,8 @@ import (
 	"time"
 )
 
-var ErrParseChProgList = errors.New("failed to parse channel program list")
-var ErrChProgListIsEmpty = errors.New("the list of programs is empty")
-
-// GetAllChannelProgramList 获取所有频道的节目单列表
-func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.Channel) ([]iptv.ChannelProgramList, error) {
-	// 请求认证的Token
-	token, err := c.requestToken(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	epg := make([]iptv.ChannelProgramList, 0, len(channels))
-	for _, channel := range channels {
-		// 跳过不支持回看的频道
-		if channel.TimeShift != "1" || channel.TimeShiftLength <= 0 {
-			continue
-		}
-
-		progList, err := c.getChannelProgramList(ctx, token, channel.ChannelID)
-		if err != nil {
-			c.logger.Sugar().Warnf("Failed to get the program list for channel %s. Error: %v", channel.ChannelName, err)
-			continue
-		}
-		// 将频道名称设置上，方便后续查询
-		progList.ChannelName = channel.ChannelName
-		epg = append(epg, *progList)
-	}
-
-	return epg, nil
-}
-
-// getChannelProgramList 获取指定频道的节目单列表
-func (c *Client) getChannelProgramList(ctx context.Context, token *Token, channelId string) (*iptv.ChannelProgramList, error) {
+// getLiveplayChannelProgramList 获取指定频道的节目单列表
+func (c *Client) getLiveplayChannelProgramList(ctx context.Context, token *Token, channel *iptv.Channel) (*iptv.ChannelProgramList, error) {
 	// 创建请求
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet,
 		fmt.Sprintf("http://%s/EPG/jsp/liveplay_30/en/getTvodData.jsp", c.host), nil)
@@ -54,7 +22,7 @@ func (c *Client) getChannelProgramList(ctx context.Context, token *Token, channe
 
 	// 增加请求参数
 	params := req.URL.Query()
-	params.Add("channelId", channelId)
+	params.Add("channelId", channel.ChannelID)
 	req.URL.RawQuery = params.Encode()
 
 	// 设置请求头
@@ -91,19 +59,20 @@ func (c *Client) getChannelProgramList(ctx context.Context, token *Token, channe
 	}
 
 	// 解析节目单
-	dateProgramList, err := parseChannelProgramList(matches[1])
+	dateProgramList, err := parseFTTHChannelProgramList(matches[1])
 	if err != nil {
 		return nil, err
 	}
 
 	return &iptv.ChannelProgramList{
-		ChannelId:       channelId,
+		ChannelId:       channel.ChannelID,
+		ChannelName:     channel.ChannelName,
 		DateProgramList: dateProgramList,
 	}, nil
 }
 
-// parseChannelProgramList 解析频道节目单列表
-func parseChannelProgramList(rawData []byte) ([]iptv.DateProgram, error) {
+// parseFTTHChannelProgramList 解析频道节目单列表
+func parseFTTHChannelProgramList(rawData []byte) ([]iptv.DateProgram, error) {
 	// 动态解析Json
 	var rawArray []any
 	err := json.Unmarshal(rawData, &rawArray)

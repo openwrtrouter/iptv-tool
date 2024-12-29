@@ -3,7 +3,7 @@ package cmds
 import (
 	"errors"
 	"iptv/internal/app/iptv"
-	"iptv/internal/app/iptv/cdt"
+	"iptv/internal/app/iptv/ct"
 	"iptv/internal/pkg/util"
 	"net/http"
 	"os"
@@ -43,7 +43,7 @@ func NewChannelCLI() *cobra.Command {
 			}
 
 			// 创建IPTV客户端
-			i, err := cdt.NewClient(&http.Client{
+			i, err := ct.NewClient(&http.Client{
 				Timeout: 10 * time.Second,
 			}, &config)
 			if err != nil {

@@ -3,7 +3,7 @@ package router
 import (
 	"context"
 	"iptv/internal/app/iptv"
-	"iptv/internal/app/iptv/cdt"
+	"iptv/internal/app/iptv/ct"
 	"net/http"
 	"time"
 
@@ -88,7 +88,7 @@ func newIPTVClient() (iptv.Client, error) {
 	}
 
 	// 创建IPTV客户端
-	return cdt.NewClient(&http.Client{
+	return ct.NewClient(&http.Client{
 		Timeout: 10 * time.Second,
 	}, &config)
 }
