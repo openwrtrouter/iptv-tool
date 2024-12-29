@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const maxBackDay = 8
+
 type gdhdpublicChannelProgramListResult struct {
 	Result []gdhdpublicChannelProgramList `json:"result"`
 }
@@ -26,13 +28,19 @@ type gdhdpublicChannelProgramList struct {
 
 // getGdhdpublicChannelProgramList 获取指定频道的节目单列表
 func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Token, channel *iptv.Channel) (*iptv.ChannelProgramList, error) {
-	// 获取明天的日期
+	// 获取未来一天的日期
 	tomorrow := time.Now().AddDate(0, 0, 1)
 
-	// 从明天开始往前，遍历多个日期的节目单
-	timeShiftDay := int(channel.TimeShiftLength.Hours()/24) + 1
-	dateProgramList := make([]iptv.DateProgram, 0, timeShiftDay+1)
-	for i := 0; i <= timeShiftDay; i++ {
+	// 根据当前频道的时移范围，预估EPG的查询时间范围（加上未来一天）
+	epgBackDay := int(channel.TimeShiftLength.Hours()/24) + 1
+	// 限制EPG查询的最大时间范围
+	if epgBackDay > maxBackDay {
+		epgBackDay = maxBackDay
+	}
+
+	// 从未来一天开始往前，倒查多个日期的节目单
+	dateProgramList := make([]iptv.DateProgram, 0, epgBackDay+1)
+	for i := 0; i <= epgBackDay; i++ {
 		date := tomorrow.AddDate(0, 0, -i)
 		dateStr := date.Format("20060102")
 
