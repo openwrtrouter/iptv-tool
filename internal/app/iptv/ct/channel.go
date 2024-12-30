@@ -102,21 +102,19 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 		}
 
 		// channelURL类型转换
-		// channelURL可能同时返回组播和单播多个地址（通过|分割），这里优先取组播地址
-		var channelURL *url.URL
+		// channelURL可能同时返回组播和单播多个地址（通过|分割）
 		channelURLStrList := strings.Split(string(matches[4]), "|")
+		channelURLs := make([]url.URL, 0, len(channelURLStrList))
 		for _, channelURLStr := range channelURLStrList {
-			channelURL, err = url.Parse(channelURLStr)
+			channelURL, err := url.Parse(channelURLStr)
 			if err != nil {
 				continue
 			}
 
-			if channelURL != nil && channelURL.Scheme == iptv.SCHEME_IGMP {
-				break
-			}
+			channelURLs = append(channelURLs, *channelURL)
 		}
 
-		if channelURL == nil {
+		if len(channelURLs) == 0 {
 			c.logger.Warn("The channelURL of this channel is illegal, skip it.", zap.String("channelName", channelName), zap.String("channelURL", string(matches[4])))
 			continue
 		}
@@ -144,7 +142,7 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 			ChannelID:       string(matches[1]),
 			ChannelName:     channelName,
 			UserChannelID:   string(matches[3]),
-			ChannelURL:      channelURL,
+			ChannelURLs:     channelURLs,
 			TimeShift:       string(matches[5]),
 			TimeShiftLength: time.Duration(timeShiftLength) * time.Minute,
 			TimeShiftURL:    timeShiftURL,

@@ -93,15 +93,17 @@ Key后面的即是)。
 * m3u格式直播源在线接口
 
 ```
-http://IP:PORT/channel/m3u?csFormat={format}
+http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}
 ```
 
-参数csFormat可指定回看catchup-source的请求格式，非必填。可选值如下：
+1. 参数csFormat可指定回看catchup-source的请求格式，非必填。可选值如下：
 
-| 值 | 是否缺省 | 说明                                                    |
-|---|------|-------------------------------------------------------|
-| 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
-| 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
+    | 值 | 是否缺省 | 说明                                                    |
+    |---|------|-------------------------------------------------------|
+    | 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
+    | 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
+
+2. 参数multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。非必填，缺省为`true`。
 
 * txt格式直播源在线接口
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"iptv/internal/app/iptv"
 	"net/http"
+	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -34,15 +35,21 @@ func GetM3UData(c *gin.Context) {
 		catchupSource = diypCatchupSource
 	}
 
-	channels := *channelsPtr.Load()
+	// 是否优先是由组播地址
+	multiFirstStr := c.DefaultQuery("multiFirst", "true")
+	multicastFirst, err := strconv.ParseBool(multiFirstStr)
+	if err != nil {
+		multicastFirst = true
+	}
 
+	channels := *channelsPtr.Load()
 	if len(channels) == 0 {
 		c.Status(http.StatusNotFound)
 		return
 	}
 
 	// 将获取到的频道列表转换为m3u格式
-	m3uContent, err := iptv.ToM3UFormat(channels, udpxyURL, catchupSource)
+	m3uContent, err := iptv.ToM3UFormat(channels, udpxyURL, catchupSource, multicastFirst)
 	if err != nil {
 		logger.Error("Failed to convert channel list to m3u format.", zap.Error(err))
 		// 返回响应
@@ -56,15 +63,21 @@ func GetM3UData(c *gin.Context) {
 
 // GetTXTData 查询直播源txt
 func GetTXTData(c *gin.Context) {
-	channels := *channelsPtr.Load()
+	// 是否优先是由组播地址
+	multiFirstStr := c.DefaultQuery("multiFirst", "true")
+	multicastFirst, err := strconv.ParseBool(multiFirstStr)
+	if err != nil {
+		multicastFirst = true
+	}
 
+	channels := *channelsPtr.Load()
 	if len(channels) == 0 {
 		c.Status(http.StatusNotFound)
 		return
 	}
 
 	// 将获取到的频道列表转换为txt格式
-	txtContent, err := iptv.ToTxtFormat(channels, udpxyURL)
+	txtContent, err := iptv.ToTxtFormat(channels, udpxyURL, multicastFirst)
 	if err != nil {
 		logger.Error("Failed to convert channel list to txt format.", zap.Error(err))
 		// 返回响应

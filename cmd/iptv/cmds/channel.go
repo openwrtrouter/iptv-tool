@@ -25,6 +25,7 @@ var (
 	udpxyURL          string
 	format            string
 	catchupSource     string
+	multicastFirst    bool
 )
 
 func NewChannelCLI() *cobra.Command {
@@ -82,13 +83,13 @@ func NewChannelCLI() *cobra.Command {
 			switch format {
 			case "txt":
 				// 将获取到的频道列表转换为TXT格式
-				content, err = iptv.ToTxtFormat(channels, udpxyURL)
+				content, err = iptv.ToTxtFormat(channels, udpxyURL, multicastFirst)
 				if err != nil {
 					return err
 				}
 			case "m3u":
 				// 将获取到的频道列表转换为M3U格式
-				content, err = iptv.ToM3UFormat(channels, udpxyURL, catchupSource)
+				content, err = iptv.ToM3UFormat(channels, udpxyURL, catchupSource, multicastFirst)
 				if err != nil {
 					return err
 				}
@@ -109,6 +110,7 @@ func NewChannelCLI() *cobra.Command {
 	channelCmd.Flags().StringVarP(&udpxyURL, "udpxy", "u", "", "如果有安装udpxy进行组播转单播，请配置HTTP地址，e.g `http://192.168.1.1:4022`。")
 	channelCmd.Flags().StringVarP(&format, "format", "f", "m3u", "生成的直播源文件格式，e.g `m3u或txt`。")
 	channelCmd.Flags().StringVarP(&catchupSource, "catchup-source", "s", "?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}", "回看的请求格式字符串，会追加在时移地址后面。")
+	channelCmd.Flags().BoolVarP(&multicastFirst, "multicast-first", "m", false, "当频道存在多个URL地址时，是否优先使用组播地址。")
 
 	return channelCmd
 }
