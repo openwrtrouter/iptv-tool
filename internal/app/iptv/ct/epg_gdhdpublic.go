@@ -3,6 +3,7 @@ package ct
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"iptv/internal/app/iptv"
@@ -47,6 +48,9 @@ func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Tok
 		// 获取指定日期的节目单列表
 		dateProgram, err := c.getGdhdpublicChannelDateProgram(ctx, token, channel.ChannelID, dateStr)
 		if err != nil {
+			if errors.Is(err, ErrEPGApiNotFound) {
+				return nil, err
+			}
 			c.logger.Sugar().Warnf("Failed to get the program list for channel %s on %s. Error: %v", channel.ChannelName, dateStr, err)
 			continue
 		}
@@ -97,7 +101,9 @@ func (c *Client) getGdhdpublicChannelDateProgram(ctx context.Context, token *Tok
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, ErrEPGApiNotFound
+	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)
 	}
 

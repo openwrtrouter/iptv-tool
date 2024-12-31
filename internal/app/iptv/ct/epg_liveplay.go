@@ -41,7 +41,9 @@ func (c *Client) getLiveplayChannelProgramList(ctx context.Context, token *Token
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, ErrEPGApiNotFound
+	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)
 	}
 
@@ -59,7 +61,7 @@ func (c *Client) getLiveplayChannelProgramList(ctx context.Context, token *Token
 	}
 
 	// 解析节目单
-	dateProgramList, err := parseFTTHChannelProgramList(matches[1])
+	dateProgramList, err := parseLiveplayChannelProgramList(matches[1])
 	if err != nil {
 		return nil, err
 	}
@@ -71,8 +73,8 @@ func (c *Client) getLiveplayChannelProgramList(ctx context.Context, token *Token
 	}, nil
 }
 
-// parseFTTHChannelProgramList 解析频道节目单列表
-func parseFTTHChannelProgramList(rawData []byte) ([]iptv.DateProgram, error) {
+// parseLiveplayChannelProgramList 解析频道节目单列表
+func parseLiveplayChannelProgramList(rawData []byte) ([]iptv.DateProgram, error) {
 	// 动态解析Json
 	var rawArray []any
 	err := json.Unmarshal(rawData, &rawArray)
