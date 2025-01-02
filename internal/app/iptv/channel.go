@@ -39,7 +39,7 @@ func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string, multicastFi
 		}
 
 		var m3uLine string
-		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 {
+		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 && channel.TimeShiftURL != nil {
 			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" tvg-chno=\"%s\" catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\" group-title=\"%s\",%s\n%s\n",
 				channel.ChannelID, channel.UserChannelID, "default", channel.TimeShiftURL.String()+catchupSource,
 				int64(channel.TimeShiftLength.Hours()/24), channel.GroupName, channel.ChannelName, channelURLStr)

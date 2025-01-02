@@ -122,18 +122,19 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 		// TimeShiftLength类型转换
 		timeShiftLength, err := strconv.ParseInt(string(matches[6]), 10, 64)
 		if err != nil {
-			c.logger.Warn("The timeShiftLength of this channel is illegal, skip it.", zap.String("channelName", channelName), zap.String("timeShiftLength", string(matches[6])))
-			continue
+			c.logger.Warn("The timeShiftLength of this channel is illegal. Use the default value: 0.", zap.String("channelName", channelName), zap.String("timeShiftLength", string(matches[6])))
+			timeShiftLength = 0
 		}
 
 		// 解析时移地址
 		timeShiftURL, err := url.Parse(string(matches[7]))
 		if err != nil {
-			c.logger.Warn("The timeShiftURL of this channel is illegal, skip it.", zap.String("channelName", channelName), zap.String("timeShiftURL", string(matches[7])))
-			continue
+			c.logger.Warn("The timeShiftURL of this channel is illegal. Use the default value: nil.", zap.String("channelName", channelName), zap.String("timeShiftURL", string(matches[7])))
 		}
-		// 重置时移地址的查询参数
-		timeShiftURL.RawQuery = ""
+		if timeShiftURL != nil {
+			// 重置时移地址的查询参数
+			timeShiftURL.RawQuery = ""
+		}
 
 		// 自动识别频道的分类
 		groupName := iptv.GetChannelGroupName(channelName)
