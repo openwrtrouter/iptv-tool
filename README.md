@@ -35,14 +35,14 @@ IPTV工具，功能列表如下：
 }
 ```
 
-| 字段                | 说明                                                                                                   |
-|-------------------|------------------------------------------------------------------------------------------------------|
-| key               | 不是Authenticator，而是生成Authenticator的秘钥，每个IPTV机顶盒可能都不同，可通过工具根据某次抓包获取的Authenticator反向破解key，具体见下面的使用介绍。   |
-| interfaceName     | 设备的网络接口名称，和ip字段二选一，优先使用该字段的值。当工具运行在软路由上时，可通过配置自动获取指定接口的IPv4地址。用于获取软路由上某接口被自动分配的IPTV线路的IP地址。          |
-| serverHost        | 工具请求的IPTV服务器地址，注意需要走IPTV专用网络才能访问通。                                                                   |
-| ip                | 客户端的ip，可任意配置，生成Authenticator所需。当interfaceName已配置时，优先通过interfaceName获取。                               |
-| channelProgramAPI | 请求频道节目信息的API接口，目前只支持两种：`liveplay_30`或`gdhdpublic`。<br/>未配置时，工具将自动进行尝试。                            |
-| 其他字段              | 均可通过抓包获取（注意x-requested-with可通过抓包HTTP请求头拿到）。 必填字段：userID,stbType,stbVersion,stbID,mac,softwareVersion |
+| 字段                | 说明                                                                                                                             |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| key               | **必填**。不是Authenticator，而是生成Authenticator的秘钥，每个IPTV机顶盒可能都不同，可通过工具根据某次抓包获取的Authenticator反向破解key，具体见下面的使用介绍。                      |
+| interfaceName     | 设备的网络接口名称，**和ip字段二选一**，优先使用该字段的值。当工具运行在软路由上时，可通过配置自动获取指定接口的IPv4地址。用于获取软路由上某接口被自动分配的IPTV线路的IP地址。                                |
+| serverHost        | **必填**。工具请求的IPTV服务器地址，注意需要走IPTV专用网络才能访问通。                                                                                      |
+| ip                | 客户端的ip，可任意配置，生成Authenticator所需。当interfaceName已配置时，优先通过interfaceName获取。                                                         |
+| channelProgramAPI | 请求频道节目信息的API接口，目前只支持两种：`liveplay_30`或`gdhdpublic`。<br/>未配置时，工具将自动进行尝试。                                                         |
+| 其他字段              | 均可通过抓包获取（注意x-requested-with可通过抓包HTTP请求头拿到）。<br/>**必填字段**：`userID`, `stbType`, `stbVersion`, `stbID` ,` mac`, `softwareVersion` |
 
 ### 使用介绍
 
@@ -99,7 +99,7 @@ http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}
 1. 参数csFormat可指定回看catchup-source的请求格式，非必填。可选值如下：
 
    | 值 | 是否缺省 | 说明                                                    |
-       |---|------|-------------------------------------------------------|
+          |---|------|-------------------------------------------------------|
    | 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
    | 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
 
