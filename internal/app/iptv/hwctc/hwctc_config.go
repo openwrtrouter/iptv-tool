@@ -1,18 +1,16 @@
-package iptv
+package hwctc
 
 import (
 	"errors"
+	"iptv/internal/app/iptv"
 )
 
 type Config struct {
-	Key           string `json:"key"`           // 8位数字，加密Authenticator的秘钥，每个机顶盒可能都不同，获取频道列表必须使用
-	InterfaceName string `json:"interfaceName"` // 网络接口的名称。若配置则生成Authenticator时，优先使用该接口对应的IPv4地址，而不使用`ip`字段的值。
+	iptv.Config // 公共配置
+
 	// 以下信息均可通过抓包获取
-	ServerHost        string `json:"serverHost"`                  // HTTP请求的服务器地址端口
-	IP                string `json:"ip"`                          // 生成Authenticator所需的IP地址。可随便一个地址，或者通过配置`interfaceName`动态获取
 	XRequestedWith    string `json:"x-requested-with,omitempty"`  // HTTP请求时需要携带的请求头，找不到可不填写
 	ChannelProgramAPI string `json:"channelProgramAPI,omitempty"` // 请求频道节目信息的API接口，目前只支持两种：liveplay_30或者gdhdpublic，缺省为liveplay_30。
-
 	// 以下信息均可通过抓包请求ValidAuthenticationHWCTC.jsp的参数拿到
 	UserID           string `json:"userID"`
 	Lang             string `json:"lang,omitempty"`      // 如果没有可以不填

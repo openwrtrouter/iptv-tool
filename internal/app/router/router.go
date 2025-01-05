@@ -3,7 +3,7 @@ package router
 import (
 	"context"
 	"iptv/internal/app/iptv"
-	"iptv/internal/app/iptv/ct"
+	"iptv/internal/app/iptv/hwctc"
 	"net/http"
 	"time"
 
@@ -81,14 +81,14 @@ func initData(ctx context.Context, iptvClient iptv.Client) error {
 // newIPTVClient 读取配置文件并创建IPTV客户端
 func newIPTVClient() (iptv.Client, error) {
 	// 读取IPTV配置
-	var config iptv.Config
+	var config hwctc.Config
 	err := viper.Unmarshal(&config)
 	if err != nil {
 		return nil, err
 	}
 
 	// 创建IPTV客户端
-	return ct.NewClient(&http.Client{
+	return hwctc.NewClient(&http.Client{
 		Timeout: 10 * time.Second,
 	}, &config)
 }

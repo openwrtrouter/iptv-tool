@@ -1,4 +1,4 @@
-package ct
+package hwctc
 
 import (
 	"iptv/internal/app/iptv"
@@ -9,7 +9,7 @@ import (
 
 type Client struct {
 	httpClient *http.Client // HTTP客户端
-	config     *iptv.Config // IPTV配置
+	config     *Config      // IPTV配置
 	host       string       // 缓存最新重定向的服务器地址和端口
 
 	logger *zap.Logger // 日志
@@ -17,7 +17,7 @@ type Client struct {
 
 var _ iptv.Client = (*Client)(nil)
 
-func NewClient(httpClient *http.Client, config *iptv.Config) (iptv.Client, error) {
+func NewClient(httpClient *http.Client, config *Config) (iptv.Client, error) {
 	// 校验config配置
 	if err := config.Validate(); err != nil {
 		return nil, err

@@ -3,7 +3,7 @@ package cmds
 import (
 	"errors"
 	"iptv/internal/app/iptv"
-	"iptv/internal/app/iptv/ct"
+	"iptv/internal/app/iptv/hwctc"
 	"iptv/internal/pkg/util"
 	"net/http"
 	"os"
@@ -37,14 +37,14 @@ func NewChannelCLI() *cobra.Command {
 			logger := zap.L()
 
 			// 读取IPTV配置
-			var config iptv.Config
+			var config hwctc.Config
 			err := viper.Unmarshal(&config)
 			if err != nil {
 				return err
 			}
 
 			// 创建IPTV客户端
-			i, err := ct.NewClient(&http.Client{
+			i, err := hwctc.NewClient(&http.Client{
 				Timeout: 10 * time.Second,
 			}, &config)
 			if err != nil {
