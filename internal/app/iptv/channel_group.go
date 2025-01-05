@@ -20,6 +20,7 @@ var chGroupRuleMap = map[string][]*regexp.Regexp{
 	"地方": {
 		regexp.MustCompile("^(SCTV|CDTV).+?$"), // 四川
 		regexp.MustCompile("^(浙江|杭州|民生|钱江|教科影视|好易购|西湖|青少体育).+?$"), // 浙江
+		regexp.MustCompile("^(湖北|武汉).+?$"),                        // 湖北
 	},
 	"专区": {
 		regexp.MustCompile(".+?专区$"),
