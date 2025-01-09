@@ -50,7 +50,7 @@ func NewServeCLI() *cobra.Command {
 			}
 
 			// 创建并启动HTTP服务
-			r, err := router.NewEngine(cmd.Context(), httpConfig.Interval, httpConfig.UdpxyURL)
+			r, err := router.NewEngine(cmd.Context(), conf, httpConfig.Interval, httpConfig.UdpxyURL)
 			if err != nil {
 				return err
 			}

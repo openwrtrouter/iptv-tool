@@ -1,14 +1,18 @@
 package cmds
 
 import (
+	"iptv/internal/app/config"
 	"iptv/internal/pkg/util"
-	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+
+	conf *config.Config
+)
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -35,28 +39,20 @@ func NewRootCLI() *cobra.Command {
 
 // initConfig 初始化配置文件
 func initConfig() {
+	var err error
+	var fPath string
+
 	if cfgFile != "" {
 		// 使用命令参数中的配置文件
-		viper.SetConfigFile(cfgFile)
+		fPath = cfgFile
 	} else {
 		cfgHome, err := util.GetCurrentAbPathByExecutable()
 		cobra.CheckErr(err)
 
-		viper.AddConfigPath(cfgHome)
-		viper.SetConfigName("config")
-		viper.SetConfigType("json")
-
-		// 创建配置目录
-		if _, err = os.Stat(cfgHome); os.IsNotExist(err) {
-			err = os.MkdirAll(cfgHome, 0755)
-			cobra.CheckErr(err)
-		}
-		_ = viper.SafeWriteConfig()
+		fPath = filepath.Join(cfgHome, "config.yml")
 	}
 
-	// 读取环境变量
-	viper.AutomaticEnv()
-
-	err := viper.ReadInConfig()
+	// 读取配置文件
+	conf, err = config.Load(fPath)
 	cobra.CheckErr(err)
 }

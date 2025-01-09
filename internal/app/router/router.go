@@ -2,6 +2,7 @@ package router
 
 import (
 	"context"
+	"iptv/internal/app/config"
 	"iptv/internal/app/iptv"
 	"iptv/internal/app/iptv/hwctc"
 	"net/http"
@@ -9,14 +10,16 @@ import (
 
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-var udpxyURL string
-var logger *zap.Logger
+var (
+	logger *zap.Logger
 
-func NewEngine(ctx context.Context, interval time.Duration, udpxyURLCfg string) (*gin.Engine, error) {
+	udpxyURL string
+)
+
+func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration, udpxyURLCfg string) (*gin.Engine, error) {
 	// L()：获取全局logger
 	logger = zap.L()
 
@@ -26,7 +29,7 @@ func NewEngine(ctx context.Context, interval time.Duration, udpxyURLCfg string) 
 	udpxyURL = udpxyURLCfg
 
 	// 创建IPTV客户端
-	iptvClient, err := newIPTVClient()
+	iptvClient, err := newIPTVClient(conf)
 	if err != nil {
 		return nil, err
 	}
@@ -79,16 +82,14 @@ func initData(ctx context.Context, iptvClient iptv.Client) error {
 }
 
 // newIPTVClient 读取配置文件并创建IPTV客户端
-func newIPTVClient() (iptv.Client, error) {
-	// 读取IPTV配置
-	var config hwctc.Config
-	err := viper.Unmarshal(&config)
-	if err != nil {
+func newIPTVClient(conf *config.Config) (iptv.Client, error) {
+	// 校验配置文件
+	if err := conf.Validate(); err != nil {
 		return nil, err
 	}
 
 	// 创建IPTV客户端
 	return hwctc.NewClient(&http.Client{
 		Timeout: 10 * time.Second,
-	}, &config)
+	}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers)
 }

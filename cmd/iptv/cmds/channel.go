@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -36,17 +35,15 @@ func NewChannelCLI() *cobra.Command {
 			// L()：获取全局logger
 			logger := zap.L()
 
-			// 读取IPTV配置
-			var config hwctc.Config
-			err := viper.Unmarshal(&config)
-			if err != nil {
+			// 校验配置文件
+			if err := conf.Validate(); err != nil {
 				return err
 			}
 
 			// 创建IPTV客户端
 			i, err := hwctc.NewClient(&http.Client{
 				Timeout: 10 * time.Second,
-			}, &config)
+			}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers)
 			if err != nil {
 				return err
 			}

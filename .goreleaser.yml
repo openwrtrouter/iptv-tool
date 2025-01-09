@@ -47,6 +47,9 @@ archives:
     builds_info:
       group: root
       owner: root
+    files:
+      - LICENSE*
+      - config.yml
 changelog:
   sort: asc
   groups:

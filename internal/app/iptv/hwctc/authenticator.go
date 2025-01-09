@@ -44,7 +44,7 @@ func (c *Client) requestToken(ctx context.Context) (*Token, error) {
 func (c *Client) authenticationURL(ctx context.Context, FCCSupport bool) (string, error) {
 	// 创建请求
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet,
-		fmt.Sprintf("http://%s/EDS/jsp/AuthenticationURL", c.config.ServerHost), nil)
+		fmt.Sprintf("http://%s/EDS/jsp/AuthenticationURL", c.originHost), nil)
 	if err != nil {
 		return "", err
 	}
@@ -148,7 +148,7 @@ func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken stri
 	input := fmt.Sprintf("%d$%s$%s$%s$%s$%s$$CTC",
 		random, encryptToken, c.config.UserID, c.config.STBID, ipv4Addr, c.config.MAC)
 	// 使用3DES加密生成Authenticator
-	crypto := iptv.NewTripleDESCrypto(c.config.Key)
+	crypto := iptv.NewTripleDESCrypto(c.key)
 	authenticator, err := crypto.ECBEncrypt(input)
 	if err != nil {
 		return nil, err

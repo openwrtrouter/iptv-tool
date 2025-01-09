@@ -1,0 +1,55 @@
+###############################################
+# 全局设置
+###############################################
+
+# 8位数字，生成Authenticator的秘钥
+# 并不是Authenticator，而是生成Authenticator的秘钥
+# 必填
+key:
+# HTTP请求的服务器地址端口
+# 注意需要走IPTV专用网络才能访问通。
+# 必填
+serverHost: 182.138.3.142:8082
+# 自定义HTTP请求头
+headers:
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"
+  User-Agent: "Mozilla/5.0 (X11; Linux x86_64; Fhbw2.0) AppleWebKit"
+  Accept-Language: "zh-CN,en-US;q=0.8"
+  X-Requested-With: "com.fiberhome.iptv"
+
+###############################################
+# hw平台相关设置
+hwctc:
+  # "interfaceName"和"ip"至少填写一个，若都填写则优先使用"interfaceName"指定的接口对应的IPv4地址
+  # 生成Authenticator所需的网络接口名称，可通过配置自动获取指定接口的IPv4地址。用于获取软路由上某接口被自动分配的IPTV线路的IP地址。
+  interfaceName:
+  # 生成Authenticator所需的客户端的ip，可任意配置
+  ip:
+
+  # 认证接口ValidAuthenticationHWCTC.jsp的相关参数
+  # 必填
+  userID:
+  lang:
+  netUserID:
+  # 必填
+  stbType:
+  # 必填
+  stbVersion:
+  conntype:
+  # 必填
+  stbID:
+  templateName:
+  areaId:
+  userGroupId:
+  productPackageId:
+  # 必填
+  mac:
+  userField:
+  softwareVersion:
+  isSmartStb:
+  vip:
+
+  # 获取EPG信息的API
+  # 目前只支持两种："liveplay_30"或者"gdhdpublic"
+  # 未设置时，将自动进行尝试。
+  channelProgramAPI: liveplay_30

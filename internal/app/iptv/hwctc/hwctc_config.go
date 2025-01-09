@@ -5,44 +5,38 @@ import (
 )
 
 type Config struct {
-	Key           string `json:"key"`           // 8位数字，加密Authenticator的秘钥，每个机顶盒可能都不同，获取频道列表必须使用
-	InterfaceName string `json:"interfaceName"` // 网络接口的名称。若配置则生成Authenticator时，优先使用该接口对应的IPv4地址，而不使用`ip`字段的值。
+	InterfaceName string `json:"interfaceName" yaml:"interfaceName"` // 网络接口的名称。若配置则生成Authenticator时，优先使用该接口对应的IPv4地址，而不使用`ip`字段的值。
 	// 以下信息均可通过抓包获取
-	ServerHost        string `json:"serverHost"`                  // HTTP请求的服务器地址端口
-	IP                string `json:"ip"`                          // 生成Authenticator所需的IP地址。可随便一个地址，或者通过配置`interfaceName`动态获取
-	XRequestedWith    string `json:"x-requested-with,omitempty"`  // HTTP请求时需要携带的请求头，找不到可不填写
-	ChannelProgramAPI string `json:"channelProgramAPI,omitempty"` // 请求频道节目信息的API接口，目前只支持两种：liveplay_30或者gdhdpublic，缺省为liveplay_30。
+	IP                string `json:"ip" yaml:"ip"`                                                   // 生成Authenticator所需的IP地址。可随便一个地址，或者通过配置`interfaceName`动态获取
+	ChannelProgramAPI string `json:"channelProgramAPI,omitempty" yaml:"channelProgramAPI,omitempty"` // 请求频道节目信息（EPG）的API接口，目前只支持两种：liveplay_30或者gdhdpublic。
 	// 以下信息均可通过抓包请求ValidAuthenticationHWCTC.jsp的参数拿到
-	UserID           string `json:"userID"`
-	Lang             string `json:"lang,omitempty"`      // 如果没有可以不填
-	NetUserID        string `json:"netUserId,omitempty"` // 如果没有可以不填
-	STBType          string `json:"stbType"`
-	STBVersion       string `json:"stbVersion"`
-	Conntype         string `json:"conntype"`
-	STBID            string `json:"stbID"` // 机顶盒背面也可查
-	TemplateName     string `json:"templateName"`
-	AreaId           string `json:"areaId"`
-	UserGroupId      string `json:"userGroupId,omitempty"`
-	ProductPackageId string `json:"productPackageId,omitempty"`
-	MAC              string `json:"mac"` // 机顶盒背面也可查
-	UserField        string `json:"userField,omitempty"`
-	SoftwareVersion  string `json:"softwareVersion"`
-	IsSmartStb       string `json:"isSmartStb,omitempty"`
-	Vip              string `json:"vip,omitempty"`
+	UserID           string `json:"userID" yaml:"userID"`
+	Lang             string `json:"lang,omitempty" yaml:"lang,omitempty"`           // 如果没有可以不填
+	NetUserID        string `json:"netUserID,omitempty" yaml:"netUserID,omitempty"` // 如果没有可以不填
+	STBType          string `json:"stbType" yaml:"stbType"`
+	STBVersion       string `json:"stbVersion" yaml:"stbVersion"`
+	Conntype         string `json:"conntype" yaml:"conntype"`
+	STBID            string `json:"stbID" yaml:"stbID"` // 机顶盒背面也可查
+	TemplateName     string `json:"templateName" yaml:"templateName"`
+	AreaId           string `json:"areaId" yaml:"areaId"`
+	UserGroupId      string `json:"userGroupId,omitempty" yaml:"userGroupId,omitempty"`
+	ProductPackageId string `json:"productPackageId,omitempty" yaml:"productPackageId,omitempty"`
+	MAC              string `json:"mac" yaml:"mac"` // 机顶盒背面也可查
+	UserField        string `json:"userField,omitempty" yaml:"userField,omitempty"`
+	SoftwareVersion  string `json:"softwareVersion" yaml:"softwareVersion"`
+	IsSmartStb       string `json:"isSmartStb,omitempty" yaml:"isSmartStb,omitempty"`
+	Vip              string `json:"vip,omitempty" yaml:"vip,omitempty"`
 }
 
 func (c *Config) Validate() error {
 	// 校验config配置
-	if c.Key == "" ||
-		c.ServerHost == "" ||
-		(c.IP == "" && c.InterfaceName == "") ||
+	if (c.IP == "" && c.InterfaceName == "") ||
 		c.UserID == "" ||
 		c.STBType == "" ||
 		c.STBVersion == "" ||
 		c.STBID == "" ||
-		c.MAC == "" ||
-		c.SoftwareVersion == "" {
-		return errors.New("invalid IPTV Client config")
+		c.MAC == "" {
+		return errors.New("invalid HWCTC IPTV client config")
 	}
 
 	return nil
