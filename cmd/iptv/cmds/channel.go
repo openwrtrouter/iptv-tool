@@ -43,7 +43,7 @@ func NewChannelCLI() *cobra.Command {
 			// 创建IPTV客户端
 			i, err := hwctc.NewClient(&http.Client{
 				Timeout: 10 * time.Second,
-			}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers)
+			}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers, conf.ChGroupRulesList)
 			if err != nil {
 				return err
 			}

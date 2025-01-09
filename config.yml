@@ -16,6 +16,26 @@ headers:
   User-Agent: "Mozilla/5.0 (X11; Linux x86_64; Fhbw2.0) AppleWebKit"
   Accept-Language: "zh-CN,en-US;q=0.8"
   X-Requested-With: "com.fiberhome.iptv"
+# 频道分组规则
+# 依照顺序识别频道分组，且仅支持正则表达式
+chGroupRules:
+  - name: 央视
+    rules:
+      - "^(CCTV|中央).+?$"
+  - name: 卫视
+    rules:
+      - "^[^(热门)].+?卫视.*?$"
+  - name: 国际
+    rules:
+      - "^(CGTN|凤凰).+?$"
+  - name: 地方
+    rules:
+      - "^(SCTV|CDTV).+?$" # 四川地方频道
+      - "^(浙江|杭州|民生|钱江|教科影视|好易购|西湖|青少体育).+?$" # 浙江地方频道
+      - "^(湖北|武汉).+?$" # 湖北地方频道
+  - name: 专区
+    rules:
+      - ".+?专区$"
 
 ###############################################
 # hw平台相关设置

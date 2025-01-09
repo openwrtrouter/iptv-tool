@@ -9,11 +9,12 @@ import (
 )
 
 type Client struct {
-	httpClient *http.Client      // HTTP客户端
-	config     *Config           // hwctc相关配置
-	key        string            // 加密Authenticator的秘钥
-	originHost string            // HTTP请求的服务器地址端口
-	headers    map[string]string // 自定义HTTP请求头
+	httpClient       *http.Client             // HTTP客户端
+	config           *Config                  // hwctc相关配置
+	key              string                   // 加密Authenticator的秘钥
+	originHost       string                   // HTTP请求的服务器地址端口
+	headers          map[string]string        // 自定义HTTP请求头
+	chGroupRulesList []iptv.ChannelGroupRules // 频道分组的规则
 
 	host string // 缓存最新重定向的服务器地址和端口
 
@@ -22,7 +23,7 @@ type Client struct {
 
 var _ iptv.Client = (*Client)(nil)
 
-func NewClient(httpClient *http.Client, config *Config, key, serverHost string, headers map[string]string) (iptv.Client, error) {
+func NewClient(httpClient *http.Client, config *Config, key, serverHost string, headers map[string]string, chGroupRulesList []iptv.ChannelGroupRules) (iptv.Client, error) {
 	// config不能为空
 	if config == nil {
 		return nil, fmt.Errorf("client config is nil")
@@ -38,13 +39,14 @@ func NewClient(httpClient *http.Client, config *Config, key, serverHost string, 
 	}
 
 	i := Client{
-		httpClient: httpClient,
-		config:     config,
-		key:        key,
-		originHost: serverHost,
-		headers:    headers,
-		host:       serverHost,
-		logger:     zap.L(),
+		httpClient:       httpClient,
+		config:           config,
+		key:              key,
+		originHost:       serverHost,
+		headers:          headers,
+		chGroupRulesList: chGroupRulesList,
+		host:             serverHost,
+		logger:           zap.L(),
 	}
 	if i.httpClient == nil {
 		i.httpClient = http.DefaultClient

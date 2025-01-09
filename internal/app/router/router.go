@@ -91,5 +91,5 @@ func newIPTVClient(conf *config.Config) (iptv.Client, error) {
 	// 创建IPTV客户端
 	return hwctc.NewClient(&http.Client{
 		Timeout: 10 * time.Second,
-	}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers)
+	}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers, conf.ChGroupRulesList)
 }

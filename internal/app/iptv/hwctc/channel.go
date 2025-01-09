@@ -137,7 +137,7 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 		}
 
 		// 自动识别频道的分类
-		groupName := iptv.GetChannelGroupName(channelName)
+		groupName := iptv.GetChannelGroupName(c.chGroupRulesList, channelName)
 
 		channels = append(channels, iptv.Channel{
 			ChannelID:       string(matches[1]),
