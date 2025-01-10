@@ -7,6 +7,7 @@ IPTV工具，功能列表如下：
 * 提供EPG在线接口，支持xmltv和json两种格式。
 
 ### 配置说明
+
 详细说明参见config.yml文件
 
 ### 使用介绍
@@ -63,10 +64,10 @@ http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}
 
 1. 参数csFormat可指定回看catchup-source的请求格式，非必填。可选值如下：
 
-   | 值 | 是否缺省 | 说明                                                    |
-          |---|------|-------------------------------------------------------|
-   | 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
-   | 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
+| 值 | 是否缺省 | 说明                                                    |
+|---|------|-------------------------------------------------------|
+| 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
+| 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
 
 2. 参数multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。非必填，缺省为`true`。
 
