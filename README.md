@@ -56,7 +56,7 @@ Key后面的即是)。
 
 ### HTTP API
 
-* m3u格式直播源在线接口
+* **m3u格式直播源在线接口**
 
 ```
 http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}
@@ -71,25 +71,27 @@ http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}
 
 2. 参数multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。非必填，缺省为`true`。
 
-* txt格式直播源在线接口
+* **txt格式直播源在线接口**
 
 ```
-http://IP:PORT/channel/txt
-```  
+http://IP:PORT/channel/txt?multiFirst={multiFirst}
+```
 
-* json格式EPG
+1. 参数multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。非必填，缺省为`true`。
+
+* **json格式EPG**
 
 ```
 http://IP:PORT/epg/json?ch={name}&date={date}
 ```  
 
-* xmltv格式EPG
+* **xmltv格式EPG**
 
 ```
 http://IP:PORT/epg/xml
 ```  
 
-* xmltv格式EPG（gzip压缩）
+* **xmltv格式EPG（gzip压缩）**
 
 ```
 http://IP:PORT/epg/xml.gz
