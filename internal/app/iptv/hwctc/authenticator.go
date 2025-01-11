@@ -217,6 +217,9 @@ func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken stri
 			break
 		}
 	}
+	if jsessionID == "" {
+		return nil, errors.New("failed to find JSESSIONID in response")
+	}
 
 	// 解析响应内容
 	result, err := io.ReadAll(resp.Body)
