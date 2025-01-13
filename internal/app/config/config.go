@@ -82,3 +82,63 @@ func Load(fPath string) (*Config, error) {
 
 	return &config, nil
 }
+
+func CreateDefaultCfg(fPath string) error {
+	// 写入默认配置
+	f, err := os.Create(fPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// 创建编码器
+	encoder := yaml.NewEncoder(f)
+
+	// 缺省配置
+	defaultCfg := Config{
+		ServerHost: "127.0.0.1",
+		Headers: map[string]string{
+			"Accept":           "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+			"User-Agent":       "Mozilla/5.0 (X11; Linux x86_64; Fhbw2.0) AppleWebKit",
+			"Accept-Language":  "zh-CN,en-US;q=0.8",
+			"X-Requested-With": "com.fiberhome.iptv",
+		},
+		OptionChGroupRulesList: []OptionChannelGroupRules{
+			{
+				Name: "央视",
+				Rules: []string{
+					"^(CCTV|中央).+?$",
+				},
+			},
+			{
+				Name: "卫视",
+				Rules: []string{
+					"^[^(热门)].+?卫视.*?$",
+				},
+			},
+			{
+				Name: "国际",
+				Rules: []string{
+					"^(CGTN|凤凰).+?$",
+				},
+			},
+			{
+				Name: "地方",
+				Rules: []string{
+					"^(SCTV|CDTV).+?$",
+					"^(浙江|杭州|民生|钱江|教科影视|好易购|西湖|青少体育).+?$",
+					"^(湖北|武汉).+?$",
+				},
+			},
+			{
+				Name: "专区",
+				Rules: []string{
+					".+?专区$",
+				},
+			},
+		},
+		HWCTC: &hwctc.Config{},
+	}
+
+	return encoder.Encode(&defaultCfg)
+}

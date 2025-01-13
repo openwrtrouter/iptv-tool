@@ -3,6 +3,7 @@ package cmds
 import (
 	"iptv/internal/app/config"
 	"iptv/internal/pkg/util"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -50,6 +51,12 @@ func initConfig() {
 		cobra.CheckErr(err)
 
 		fPath = filepath.Join(cfgHome, "config.yml")
+
+		// 写入缺省配置文件
+		if _, err = os.Stat(fPath); os.IsNotExist(err) {
+			err = config.CreateDefaultCfg(fPath)
+			cobra.CheckErr(err)
+		}
 	}
 
 	// 读取配置文件
