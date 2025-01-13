@@ -119,8 +119,6 @@ func getChannelURLStr(channelURLs []url.URL, udpxyURL string, multicastFirst boo
 	if udpxyURL != "" && channelURL.Scheme == SCHEME_IGMP {
 		return url.JoinPath(udpxyURL, fmt.Sprintf("/rtp/%s", channelURL.Host))
 	} else {
-		// 删除单播地址的多余参数
-		channelURL.RawQuery = ""
 		return channelURL.String(), nil
 	}
 }
