@@ -48,8 +48,9 @@ archives:
       group: root
       owner: root
     files:
-      - LICENSE*
       - config.yml
+      - src: "logos/*.png"
+        dst: logos
 changelog:
   sort: asc
   groups:

@@ -139,6 +139,9 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 		// 自动识别频道的分类
 		groupName := iptv.GetChannelGroupName(c.chGroupRulesList, channelName)
 
+		// 识别频道台标logo
+		logoName := iptv.GetChannelLogoName(c.chLogoRuleList, channelName)
+
 		channels = append(channels, iptv.Channel{
 			ChannelID:       string(matches[1]),
 			ChannelName:     channelName,
@@ -148,6 +151,7 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 			TimeShiftLength: time.Duration(timeShiftLength) * time.Minute,
 			TimeShiftURL:    timeShiftURL,
 			GroupName:       groupName,
+			LogoName:        logoName,
 		})
 	}
 	return channels, nil

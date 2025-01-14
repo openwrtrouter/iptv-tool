@@ -3,6 +3,7 @@ package router
 import (
 	"context"
 	"errors"
+	"fmt"
 	"iptv/internal/app/iptv"
 	"net/http"
 	"strconv"
@@ -48,8 +49,11 @@ func GetM3UData(c *gin.Context) {
 		return
 	}
 
+	// 设置台标的统一Base URL
+	logoBaseUrl := fmt.Sprintf("http://%s/logo", c.Request.Host)
+
 	// 将获取到的频道列表转换为m3u格式
-	m3uContent, err := iptv.ToM3UFormat(channels, udpxyURL, catchupSource, multicastFirst)
+	m3uContent, err := iptv.ToM3UFormat(channels, udpxyURL, catchupSource, multicastFirst, logoBaseUrl)
 	if err != nil {
 		logger.Error("Failed to convert channel list to m3u format.", zap.Error(err))
 		// 返回响应

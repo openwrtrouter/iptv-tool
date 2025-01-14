@@ -15,6 +15,7 @@ type Client struct {
 	originHost       string                   // HTTP请求的服务器地址端口
 	headers          map[string]string        // 自定义HTTP请求头
 	chGroupRulesList []iptv.ChannelGroupRules // 频道分组的规则
+	chLogoRuleList   []iptv.ChannelLogoRule   // 频道台标的匹配规则
 
 	host string // 缓存最新重定向的服务器地址和端口
 
@@ -23,7 +24,8 @@ type Client struct {
 
 var _ iptv.Client = (*Client)(nil)
 
-func NewClient(httpClient *http.Client, config *Config, key, serverHost string, headers map[string]string, chGroupRulesList []iptv.ChannelGroupRules) (iptv.Client, error) {
+func NewClient(httpClient *http.Client, config *Config, key, serverHost string, headers map[string]string,
+	chGroupRulesList []iptv.ChannelGroupRules, chLogoRuleList []iptv.ChannelLogoRule) (iptv.Client, error) {
 	// config不能为空
 	if config == nil {
 		return nil, fmt.Errorf("client config is nil")
@@ -45,6 +47,7 @@ func NewClient(httpClient *http.Client, config *Config, key, serverHost string, 
 		originHost:       serverHost,
 		headers:          headers,
 		chGroupRulesList: chGroupRulesList,
+		chLogoRuleList:   chLogoRuleList,
 		host:             serverHost,
 		logger:           zap.L(),
 	}

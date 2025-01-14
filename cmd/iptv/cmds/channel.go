@@ -43,7 +43,8 @@ func NewChannelCLI() *cobra.Command {
 			// 创建IPTV客户端
 			i, err := hwctc.NewClient(&http.Client{
 				Timeout: 10 * time.Second,
-			}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers, conf.ChGroupRulesList)
+			}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers,
+				conf.ChGroupRulesList, conf.ChLogoRuleList)
 			if err != nil {
 				return err
 			}
@@ -86,7 +87,7 @@ func NewChannelCLI() *cobra.Command {
 				}
 			case "m3u":
 				// 将获取到的频道列表转换为M3U格式
-				content, err = iptv.ToM3UFormat(channels, udpxyURL, catchupSource, multicastFirst)
+				content, err = iptv.ToM3UFormat(channels, udpxyURL, catchupSource, multicastFirst, "")
 				if err != nil {
 					return err
 				}

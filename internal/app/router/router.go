@@ -5,7 +5,9 @@ import (
 	"iptv/internal/app/config"
 	"iptv/internal/app/iptv"
 	"iptv/internal/app/iptv/hwctc"
+	"iptv/internal/pkg/util"
 	"net/http"
+	"path"
 	"time"
 
 	ginzap "github.com/gin-contrib/zap"
@@ -27,6 +29,12 @@ func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration,
 
 	// 缓存udpxy配置
 	udpxyURL = udpxyURLCfg
+
+	// 获取程序运行的当前路径
+	currDir, err := util.GetCurrentAbPathByExecutable()
+	if err != nil {
+		return nil, err
+	}
 
 	// 创建IPTV客户端
 	iptvClient, err := newIPTVClient(conf)
@@ -61,6 +69,9 @@ func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration,
 	r.GET("/epg/xml", GetXmlEPG)
 	r.GET("/epg/xml.gz", GetXmlEPGWithGzip)
 
+	// 查询频道logo
+	r.Static("/logo", path.Join(currDir, "logos"))
+
 	// 查询直播配置接口
 	r.GET("/config/lives", GetLivesConfig)
 
@@ -91,5 +102,6 @@ func newIPTVClient(conf *config.Config) (iptv.Client, error) {
 	// 创建IPTV客户端
 	return hwctc.NewClient(&http.Client{
 		Timeout: 10 * time.Second,
-	}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers, conf.ChGroupRulesList)
+	}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers,
+		conf.ChGroupRulesList, conf.ChLogoRuleList)
 }

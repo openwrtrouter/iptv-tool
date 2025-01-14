@@ -3,7 +3,10 @@ package iptv
 import (
 	"errors"
 	"fmt"
+	"iptv/internal/pkg/util"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -21,12 +24,18 @@ type Channel struct {
 	TimeShiftURL    *url.URL      `json:"timeShiftURL"`    // 时移地址（回放地址）
 
 	GroupName string `json:"groupName"` // 程序识别的频道分类
+	LogoName  string `json:"logoName"`  // 频道台标名称
 }
 
 // ToM3UFormat 转换为M3U格式内容
-func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string, multicastFirst bool) (string, error) {
+func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string, multicastFirst bool, logoBaseUrl string) (string, error) {
 	if len(channels) == 0 {
 		return "", errors.New("no channels found")
+	}
+
+	currDir, err := util.GetCurrentAbPathByExecutable()
+	if err != nil {
+		return "", err
 	}
 
 	var sb strings.Builder
@@ -38,16 +47,30 @@ func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string, multicastFi
 			return "", err
 		}
 
-		var m3uLine string
-		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 && channel.TimeShiftURL != nil {
-			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" tvg-chno=\"%s\" catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\" group-title=\"%s\",%s\n%s\n",
-				channel.ChannelID, channel.UserChannelID, "default", channel.TimeShiftURL.String()+catchupSource,
-				int64(channel.TimeShiftLength.Hours()/24), channel.GroupName, channel.ChannelName, channelURLStr)
-		} else {
-			m3uLine = fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" tvg-chno=\"%s\" group-title=\"%s\",%s\n%s\n",
-				channel.ChannelID, channel.UserChannelID, channel.GroupName, channel.ChannelName, channelURLStr)
+		var m3uLineSb strings.Builder
+
+		// 设置频道ID和序号
+		m3uLineSb.WriteString(fmt.Sprintf("#EXTINF:-1 tvg-id=\"%s\" tvg-chno=\"%s\"",
+			channel.ChannelID, channel.UserChannelID))
+		// 设置频道的台标URL
+		if logoBaseUrl != "" && channel.LogoName != "" {
+			logoFile := channel.LogoName + ".png"
+			if _, err = os.Stat(filepath.Join(currDir, logoDirName, logoFile)); !os.IsNotExist(err) {
+				if logoUrl, err := url.JoinPath(logoBaseUrl, logoFile); err == nil {
+					m3uLineSb.WriteString(fmt.Sprintf(" tvg-logo=\"%s\"",
+						logoUrl))
+				}
+			}
 		}
-		sb.WriteString(m3uLine)
+		// 设置频道回看参数
+		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 && channel.TimeShiftURL != nil {
+			m3uLineSb.WriteString(fmt.Sprintf(" catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\"",
+				"default", channel.TimeShiftURL.String()+catchupSource, int64(channel.TimeShiftLength.Hours()/24)))
+		}
+		// 设置频道分组和名称
+		m3uLineSb.WriteString(fmt.Sprintf(" group-title=\"%s\",%s\n%s\n",
+			channel.GroupName, channel.ChannelName, channelURLStr))
+		sb.WriteString(m3uLineSb.String())
 	}
 	return sb.String(), nil
 }
