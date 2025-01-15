@@ -160,7 +160,7 @@ func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken stri
 		"Lang":             c.config.Lang,
 		"SupportHD":        "1",
 		"NetUserID":        c.config.NetUserID,
-		"Authenticator":    authenticator,
+		"Authenticator":    strings.ToUpper(authenticator),
 		"STBType":          c.config.STBType,
 		"STBVersion":       c.config.STBVersion,
 		"conntype":         c.config.Conntype,

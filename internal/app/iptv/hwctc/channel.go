@@ -28,7 +28,7 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 	// 计算JSESSIONID的MD5
 	hash := md5.Sum([]byte(token.JSESSIONID))
 	// 转换为16进制字符串并转换为大写，即为tempKey
-	tempKey := hex.EncodeToString(hash[:])
+	tempKey := strings.ToUpper(hex.EncodeToString(hash[:]))
 
 	// 组装请求数据
 	data := map[string]string{
