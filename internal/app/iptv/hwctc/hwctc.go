@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"iptv/internal/app/iptv"
 	"net/http"
+	"regexp"
 
 	"go.uber.org/zap"
 )
@@ -14,6 +15,7 @@ type Client struct {
 	key              string                   // 加密Authenticator的秘钥
 	originHost       string                   // HTTP请求的服务器地址端口
 	headers          map[string]string        // 自定义HTTP请求头
+	chExcludeRule    *regexp.Regexp           // 频道的过滤规则
 	chGroupRulesList []iptv.ChannelGroupRules // 频道分组的规则
 	chLogoRuleList   []iptv.ChannelLogoRule   // 频道台标的匹配规则
 
@@ -25,7 +27,7 @@ type Client struct {
 var _ iptv.Client = (*Client)(nil)
 
 func NewClient(httpClient *http.Client, config *Config, key, serverHost string, headers map[string]string,
-	chGroupRulesList []iptv.ChannelGroupRules, chLogoRuleList []iptv.ChannelLogoRule) (iptv.Client, error) {
+	chExcludeRule *regexp.Regexp, chGroupRulesList []iptv.ChannelGroupRules, chLogoRuleList []iptv.ChannelLogoRule) (iptv.Client, error) {
 	// config不能为空
 	if config == nil {
 		return nil, fmt.Errorf("client config is nil")
@@ -46,6 +48,7 @@ func NewClient(httpClient *http.Client, config *Config, key, serverHost string, 
 		key:              key,
 		originHost:       serverHost,
 		headers:          headers,
+		chExcludeRule:    chExcludeRule,
 		chGroupRulesList: chGroupRulesList,
 		chLogoRuleList:   chLogoRuleList,
 		host:             serverHost,

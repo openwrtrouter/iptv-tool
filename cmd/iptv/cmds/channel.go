@@ -44,7 +44,7 @@ func NewChannelCLI() *cobra.Command {
 			i, err := hwctc.NewClient(&http.Client{
 				Timeout: 10 * time.Second,
 			}, conf.HWCTC, conf.Key, conf.ServerHost, conf.Headers,
-				conf.ChGroupRulesList, conf.ChLogoRuleList)
+				conf.ChExcludeRule, conf.ChGroupRulesList, conf.ChLogoRuleList)
 			if err != nil {
 				return err
 			}

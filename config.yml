@@ -16,6 +16,9 @@ headers:
   User-Agent: "Mozilla/5.0 (X11; Linux x86_64; Fhbw2.0) AppleWebKit"
   Accept-Language: "zh-CN,en-US;q=0.8"
   X-Requested-With: "com.fiberhome.iptv"
+# 频道的过滤规则，仅支持正则表达式
+# 获取频道列表时，匹配该规则的频道会被过滤掉
+chExcludeRule: "^.+?(画中画|单音轨|-体验)$"
 # 频道分组规则
 # 依照顺序识别频道分组，且仅支持正则表达式
 chGroupRules:

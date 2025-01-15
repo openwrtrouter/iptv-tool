@@ -26,6 +26,9 @@ type Config struct {
 	ServerHost string            `json:"serverHost" yaml:"serverHost"` // 必填，HTTP请求的IPTV服务器地址端口
 	Headers    map[string]string `json:"headers" yaml:"headers"`       // 自定义HTTP请求头
 
+	OptionChExcludeRule string         `json:"chExcludeRule" yaml:"chExcludeRule"` // 频道的过滤规则
+	ChExcludeRule       *regexp.Regexp `json:"-" yaml:"-"`                         // Validate()时进行填充
+
 	OptionChGroupRulesList []OptionChannelGroupRules `json:"chGroupRules" yaml:"chGroupRules"` // 自定义频道分组规则
 	ChGroupRulesList       []iptv.ChannelGroupRules  `json:"-" yaml:"-"`                       // Validate()时进行填充
 
@@ -44,6 +47,16 @@ func (c *Config) Validate() error {
 
 	// L()：获取全局logger
 	logger := zap.L()
+
+	// 填充频道的过滤规则
+	if c.OptionChExcludeRule != "" {
+		rule, err := regexp.Compile(c.OptionChExcludeRule)
+		if err != nil {
+			logger.Warn("The channel exclusion rule is incorrect. Skip it.", zap.String("chExcludeRule", c.OptionChExcludeRule), zap.Error(err))
+		} else {
+			c.ChExcludeRule = rule
+		}
+	}
 
 	// 填充频道分组的正则表达式规则
 	c.ChGroupRulesList = make([]iptv.ChannelGroupRules, 0, len(c.OptionChGroupRulesList))
@@ -134,6 +147,7 @@ func CreateDefaultCfg(fPath string) error {
 			"Accept-Language":  "zh-CN,en-US;q=0.8",
 			"X-Requested-With": "com.fiberhome.iptv",
 		},
+		OptionChExcludeRule: "^.+?(画中画|单音轨|-体验)$",
 		OptionChGroupRulesList: []OptionChannelGroupRules{
 			{
 				Name: "央视",

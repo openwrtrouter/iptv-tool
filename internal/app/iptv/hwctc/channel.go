@@ -85,9 +85,6 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 		return nil, fmt.Errorf("failed to extract channel list")
 	}
 
-	// 过滤掉特殊频道的正则表达式
-	chExcludeRegex := regexp.MustCompile("^.+?(画中画|单音轨|-体验)$")
-
 	channels := make([]iptv.Channel, 0, len(matchesList))
 	for _, matches := range matchesList {
 		if len(matches) != 8 {
@@ -96,7 +93,7 @@ func (c *Client) GetAllChannelList(ctx context.Context) ([]iptv.Channel, error) 
 
 		channelName := string(matches[2])
 		// 过滤掉特殊频道
-		if chExcludeRegex.MatchString(channelName) {
+		if c.chExcludeRule != nil && c.chExcludeRule.MatchString(channelName) {
 			c.logger.Warn("This is not a normal channel, skip it.", zap.String("channelName", channelName))
 			continue
 		}
