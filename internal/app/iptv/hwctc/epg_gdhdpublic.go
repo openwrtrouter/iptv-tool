@@ -152,7 +152,7 @@ func parseGdhdpublicChannelDateProgram(rawData []byte) (*iptv.DateProgram, error
 		return nil, err
 	}
 	// 时间取整到天
-	date := beginTime.Truncate(24 * time.Hour)
+	date := time.Date(beginTime.Year(), beginTime.Month(), beginTime.Day(), 0, 0, 0, 0, beginTime.Location())
 	return &iptv.DateProgram{
 		Date:        date,
 		ProgramList: programList,
