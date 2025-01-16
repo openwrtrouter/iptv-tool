@@ -11,8 +11,6 @@ import (
 	"time"
 )
 
-const maxBackDay = 8
-
 type gdhdpublicChannelProgramListResult struct {
 	Result []gdhdpublicChannelProgramList `json:"result"`
 }
@@ -27,7 +25,7 @@ type gdhdpublicChannelProgramList struct {
 	Day     string `json:"day"`
 }
 
-// getGdhdpublicChannelProgramList 获取指定频道的节目单列表
+// getGdhdpublicChannelProgramList 获取指定频道的节目单列表（zj）
 func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Token, channel *iptv.Channel) (*iptv.ChannelProgramList, error) {
 	// 获取未来一天的日期
 	tomorrow := time.Now().AddDate(0, 0, 1)

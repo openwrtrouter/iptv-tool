@@ -15,8 +15,11 @@ var (
 )
 
 const (
+	maxBackDay = 8
+
 	chProgAPILiveplay   = "liveplay_30"
 	chProgAPIGdhdpublic = "gdhdpublic"
+	chProgAPIVsp        = "vsp"
 )
 
 // GetAllChannelProgramList 获取所有频道的节目单列表
@@ -40,6 +43,8 @@ func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.C
 			progList, err = c.getLiveplayChannelProgramList(ctx, token, &channel)
 		case chProgAPIGdhdpublic:
 			progList, err = c.getGdhdpublicChannelProgramList(ctx, token, &channel)
+		case chProgAPIVsp:
+			progList, err = c.getVspChannelProgramList(ctx, token, &channel)
 		default:
 			// 自动选择调用EPG的API接口
 			progList, err = c.getChannelProgramListByAuto(ctx, token, &channel)
@@ -73,6 +78,13 @@ func (c *Client) getChannelProgramListByAuto(ctx context.Context, token *Token, 
 	if !errors.Is(err, ErrEPGApiNotFound) {
 		c.logger.Info("An available EPG API was found.", zap.String("channelProgramAPI", chProgAPIGdhdpublic))
 		c.config.ChannelProgramAPI = chProgAPIGdhdpublic
+		return progList, err
+	}
+
+	progList, err = c.getVspChannelProgramList(ctx, token, channel)
+	if !errors.Is(err, ErrEPGApiNotFound) {
+		c.logger.Info("An available EPG API was found.", zap.String("channelProgramAPI", chProgAPIVsp))
+		c.config.ChannelProgramAPI = chProgAPIVsp
 		return progList, err
 	}
 

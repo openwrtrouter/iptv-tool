@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// getLiveplayChannelProgramList 获取指定频道的节目单列表
+// getLiveplayChannelProgramList 获取指定频道的节目单列表（sc）
 func (c *Client) getLiveplayChannelProgramList(ctx context.Context, token *Token, channel *iptv.Channel) (*iptv.ChannelProgramList, error) {
 	// 创建请求
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet,
