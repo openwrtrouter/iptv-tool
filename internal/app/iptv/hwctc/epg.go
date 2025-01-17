@@ -59,7 +59,9 @@ func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.C
 			continue
 		}
 
-		epg = append(epg, *progList)
+		if progList != nil && len(progList.DateProgramList) > 0 {
+			epg = append(epg, *progList)
+		}
 	}
 
 	return epg, nil

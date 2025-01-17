@@ -50,7 +50,7 @@ func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Tok
 				return nil, err
 			}
 			c.logger.Sugar().Warnf("Failed to get the program list for channel %s on %s. Error: %v", channel.ChannelName, dateStr, err)
-			continue
+			break
 		}
 
 		dateProgramList = append(dateProgramList, *dateProgram)

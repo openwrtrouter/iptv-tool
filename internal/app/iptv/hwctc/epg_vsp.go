@@ -98,7 +98,7 @@ func (c *Client) getVspChannelProgramList(ctx context.Context, token *Token, cha
 				return nil, err
 			}
 			c.logger.Sugar().Warnf("Failed to get the program list for channel %s on %s. Error: %v", channel.ChannelName, startDate.Format("20060102"), err)
-			continue
+			break
 		}
 
 		dateProgramList = append(dateProgramList, iptv.DateProgram{
