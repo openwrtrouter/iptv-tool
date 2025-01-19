@@ -11,7 +11,7 @@ IPTV工具，功能列表如下：
 
 ### 配置说明
 
-详细说明参见config.yml文件
+详细说明参见配置文件[config.yml](config.yml)
 
 ### 使用介绍
 
