@@ -29,6 +29,7 @@ type gdhdpublicChannelProgramList struct {
 func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Token, channel *iptv.Channel) (*iptv.ChannelProgramList, error) {
 	// 获取未来一天的日期
 	tomorrow := time.Now().AddDate(0, 0, 1)
+	tomorrow = time.Date(tomorrow.Year(), tomorrow.Month(), tomorrow.Day(), 0, 0, 0, 0, tomorrow.Location())
 
 	// 根据当前频道的时移范围，预估EPG的查询时间范围（加上未来一天）
 	epgBackDay := int(channel.TimeShiftLength.Hours()/24) + 1
@@ -50,7 +51,7 @@ func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Tok
 				return nil, err
 			}
 			c.logger.Sugar().Warnf("Failed to get the program list for channel %s on %s. Error: %v", channel.ChannelName, dateStr, err)
-			break
+			continue
 		}
 
 		dateProgramList = append(dateProgramList, *dateProgram)
