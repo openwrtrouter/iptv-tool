@@ -79,7 +79,8 @@ http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}&udpxy={udpx
 3. udpxy：当通过启动参数`-u`或`--udpxy`配置了包含内外网的多个udpxy的URL地址时，可通过该参数指定当前m3u所使用的地址。
    **非必填，缺省为其中任意一个URL地址**<br/>
 
-   > 例如，若启动参数配置为：`./iptv serve -u inner=http://192.168.1.1:4022,outer=http://udpxy.iptv.com:4022`
+   > 例如，若启动参数配置为：<br/>
+   > `./iptv serve -u inner=http://192.168.1.1:4022,outer=http://udpxy.iptv.com:4022`
    > * `/channel/m3u?udpxy=inner`则使用udpxy的内网地址。
    > * `/channel/m3u?udpxy=outer`则使用udpxy的外网地址。
    > * `/channel/m3u?udpxy=notexist`若指定的名称不存在，则使用频道的原始地址。
