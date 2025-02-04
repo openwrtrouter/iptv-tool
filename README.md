@@ -4,9 +4,9 @@ IPTV工具，功能列表如下：
 
 * 自动更新频道列表和EPG信息。
 * 提供m3u和txt格式直播源在线接口。
-  * 自定义频道分组
-  * 自定义频道台标
-  * 支持m3u的catchup回看参数
+    * 自定义频道分组
+    * 自定义频道台标
+    * 支持m3u的catchup回看参数
 * 提供EPG在线接口，支持xmltv和json两种格式。
 
 ### 配置说明
@@ -62,25 +62,39 @@ Key后面的即是)。
 * **m3u格式直播源在线接口**
 
 ```
-http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}
+http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}&udpxy={udpxy}
 ```
 
-1. 参数csFormat可指定回看catchup-source的请求格式，非必填。可选值如下：
+参数说明：
+
+1. csFormat：可指定回看catchup-source的请求格式，**非必填。可选值如下**：
 
 | 值 | 是否缺省 | 说明                                                    |
 |---|------|-------------------------------------------------------|
 | 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
 | 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
 
-2. 参数multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。非必填，缺省为`true`。
+2. multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。**非必填，缺省为`true`**。
+
+3. udpxy：当通过启动参数`-u`或`--udpxy`配置了包含内外网的多个udpxy的URL地址时，可通过该参数指定当前m3u所使用的地址。
+   **非必填，缺省为其中任意一个URL地址**<br/>
+
+   > 例如，若启动参数配置为：`./iptv serve -u inner=http://192.168.1.1:4022,outer=http://udpxy.iptv.com:4022`
+   > * `/channel/m3u?udpxy=inner`则使用udpxy的内网地址。
+   > * `/channel/m3u?udpxy=outer`则使用udpxy的外网地址。
+   > * `/channel/m3u?udpxy=notexist`若指定的名称不存在，则使用频道的原始地址。
 
 * **txt格式直播源在线接口**
 
 ```
-http://IP:PORT/channel/txt?multiFirst={multiFirst}
+http://IP:PORT/channel/txt?multiFirst={multiFirst}&udpxy={udpxy}
 ```
 
-1. 参数multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。非必填，缺省为`true`。
+参数说明：
+
+1. multiFirst：参数说明同上。
+
+2. udpxy：参数说明同上。
 
 * **json格式EPG**
 

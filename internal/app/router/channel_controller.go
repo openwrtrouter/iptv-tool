@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"iptv/internal/app/iptv"
+	"iptv/internal/pkg/util"
 	"net/http"
 	"strconv"
 	"sync/atomic"
@@ -43,6 +44,10 @@ func GetM3UData(c *gin.Context) {
 		multicastFirst = true
 	}
 
+	// 获取指定的udpxy
+	udpxyName := c.Query("udpxy")
+	udpxyURL := getUdpxyURL(udpxyName)
+
 	channels := *channelsPtr.Load()
 	if len(channels) == 0 {
 		c.Status(http.StatusNotFound)
@@ -74,6 +79,10 @@ func GetTXTData(c *gin.Context) {
 		multicastFirst = true
 	}
 
+	// 获取指定的udpxy
+	udpxyName := c.Query("udpxy")
+	udpxyURL := getUdpxyURL(udpxyName)
+
 	channels := *channelsPtr.Load()
 	if len(channels) == 0 {
 		c.Status(http.StatusNotFound)
@@ -91,6 +100,22 @@ func GetTXTData(c *gin.Context) {
 
 	// 返回响应
 	c.String(http.StatusOK, txtContent)
+}
+
+// getUdpxyURL 通过udpxy的名称来获取指定的URL地址
+func getUdpxyURL(udpxyName string) string {
+	var udpxyURL string
+	if udpxyName != "" {
+		// 获取指定名称的udpxy的URL
+		udpxyURL = udpxyURLs[udpxyName]
+	} else {
+		// 若未指定名称，则默认随机取其中一个udpxy的URL
+		for _, k := range util.SortedMapKeys(udpxyURLs) {
+			udpxyURL = udpxyURLs[k]
+			break
+		}
+	}
+	return udpxyURL
 }
 
 // updateChannelsWithRetry 更新缓存的频道数据（失败重试）

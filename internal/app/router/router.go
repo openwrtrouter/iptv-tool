@@ -8,6 +8,8 @@ import (
 	"iptv/internal/pkg/util"
 	"net/http"
 	"path"
+	"strconv"
+	"strings"
 	"time"
 
 	ginzap "github.com/gin-contrib/zap"
@@ -18,7 +20,7 @@ import (
 var (
 	logger *zap.Logger
 
-	udpxyURL string
+	udpxyURLs map[string]string
 )
 
 func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration, udpxyURLCfg string) (*gin.Engine, error) {
@@ -28,7 +30,7 @@ func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration,
 	gin.SetMode(gin.ReleaseMode)
 
 	// 缓存udpxy配置
-	udpxyURL = udpxyURLCfg
+	udpxyURLs = parseUdpxyURLs(udpxyURLCfg)
 
 	// 获取程序运行的当前路径
 	currDir, err := util.GetCurrentAbPathByExecutable()
@@ -76,6 +78,29 @@ func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration,
 	r.GET("/config/lives", GetLivesConfig)
 
 	return r, nil
+}
+
+// parseUdpxyURLs 解析多个udpxy的URL
+func parseUdpxyURLs(udpxyURLCfg string) map[string]string {
+	result := make(map[string]string)
+
+	if udpxyURLCfg == "" {
+		return result
+	}
+
+	// 解析多个udpxy地址
+	tmpUdpxyURLs := strings.Split(udpxyURLCfg, ",")
+	for i, tmpUdpxyURL := range tmpUdpxyURLs {
+		// 获取每个udpxy的名称和URL
+		udpxyNameAndURL := strings.Split(tmpUdpxyURL, "=")
+		if len(udpxyNameAndURL) != 2 {
+			// 找不到名称则用序号代替
+			result[strconv.Itoa(i)] = tmpUdpxyURL
+		} else {
+			result[udpxyNameAndURL[0]] = udpxyNameAndURL[1]
+		}
+	}
+	return result
 }
 
 // initData 初始化数据

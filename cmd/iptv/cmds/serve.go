@@ -66,7 +66,7 @@ func NewServeCLI() *cobra.Command {
 	}
 
 	serveCmd.Flags().IntVarP(&httpConfig.Port, "port", "p", 8080, "HTTP服务的监听端口。")
-	serveCmd.Flags().StringVarP(&httpConfig.UdpxyURL, "udpxy", "u", "", "如果有安装udpxy进行组播转单播，请配置HTTP地址，e.g `http://192.168.1.1:4022`。")
+	serveCmd.Flags().StringVarP(&httpConfig.UdpxyURL, "udpxy", "u", "", "如果有安装udpxy进行组播转单播，则请配置HTTP地址。支持同时配置内外网对应的多个udpxy的地址。e.g `http://192.168.1.1:4022或inner=http://192.168.1.1:4022,outer=http://udpxy.iptv.com:4022`。")
 	serveCmd.Flags().DurationVarP(&httpConfig.Interval, "interval", "i", 24*time.Hour, "自动刷新频道列表和节目单的间隔时间，e.g `24h或15m`。")
 	serveCmd.Flags().StringVarP(&httpConfig.LiveFile, "livefile", "l", "", "加载FongMi的直播配置json文件，并提供查询接口。")
 
