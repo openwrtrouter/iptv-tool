@@ -170,7 +170,7 @@ func CreateDefaultCfg(fPath string) error {
 			{
 				Name: "地方",
 				Rules: []string{
-					"^(SCTV|CDTV).+?$",
+					"^(SCTV|CDTV|四川乡村|峨眉电影).*?$",
 					"^(浙江|杭州|民生|钱江|教科影视|好易购|西湖|青少体育).+?$",
 					"^(湖北|武汉).+?$",
 				},
@@ -202,6 +202,10 @@ func CreateDefaultCfg(fPath string) error {
 			{
 				Rule: "^CETV-?(.+?)(标清|高清|超清)?$",
 				Name: "CETV$G1",
+			},
+			{
+				Rule: "^(.+?)(标清|高清|超清)$",
+				Name: "$G1",
 			},
 		},
 		HWCTC: &hwctc.Config{},
