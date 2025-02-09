@@ -43,7 +43,8 @@ archives:
     wrap_in_directory: true
     format_overrides:
       - goos: windows
-        format: zip
+        formats:
+        - "zip"
     builds_info:
       group: root
       owner: root
