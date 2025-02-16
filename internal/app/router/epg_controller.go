@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"iptv/internal/app/iptv"
 	"net/http"
+	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -149,6 +150,17 @@ type XmlEPGDisplay struct {
 
 // GetXmlEPG 返回XMLTV格式的EPG
 func GetXmlEPG(c *gin.Context) {
+	var err error
+
+	// 保留过去几天的节目单
+	backDay := 0
+	backDayStr := c.Query("backDay")
+	if backDayStr != "" {
+		if backDay, err = strconv.Atoi(backDayStr); err != nil {
+			backDay = 0
+		}
+	}
+
 	// 如果缓存的节目单列表为空则直接返回空数据
 	chProgLists := *epgPtr.Load()
 	if len(chProgLists) == 0 {
@@ -159,14 +171,24 @@ func GetXmlEPG(c *gin.Context) {
 		return
 	}
 
-	xmlEPG := getXmlEPG(chProgLists)
+	xmlEPG := getXmlEPG(chProgLists, backDay)
 
 	c.XML(http.StatusOK, xmlEPG)
 }
 
 func GetXmlEPGWithGzip(c *gin.Context) {
-	var xmlEPG *XmlEPG
+	var err error
 
+	// 保留过去几天的节目单
+	backDay := 0
+	backDayStr := c.Query("backDay")
+	if backDayStr != "" {
+		if backDay, err = strconv.Atoi(backDayStr); err != nil {
+			backDay = 0
+		}
+	}
+
+	var xmlEPG *XmlEPG
 	// 如果缓存的节目单列表为空则直接返回空数据
 	chProgLists := *epgPtr.Load()
 	if len(chProgLists) == 0 {
@@ -175,7 +197,7 @@ func GetXmlEPGWithGzip(c *gin.Context) {
 			GeneratorInfoUrl:  xmltvGenInfoUrl,
 		}
 	} else {
-		xmlEPG = getXmlEPG(chProgLists)
+		xmlEPG = getXmlEPG(chProgLists, backDay)
 	}
 
 	// 将结构体数据转换为XML，并进行格式化
@@ -211,7 +233,10 @@ func GetXmlEPGWithGzip(c *gin.Context) {
 }
 
 // getXmlEPG 将频道节目单转为xmltv格式
-func getXmlEPG(chProgLists []iptv.ChannelProgramList) *XmlEPG {
+func getXmlEPG(chProgLists []iptv.ChannelProgramList, backDay int) *XmlEPG {
+	backTime := time.Now().AddDate(0, 0, -backDay)
+	backTime = time.Date(backTime.Year(), backTime.Month(), backTime.Day(), 0, 0, 0, 0, backTime.Location())
+
 	channels := make([]XmlEPGChannel, 0, len(chProgLists))
 	programmes := make([]XmlEPGProgramme, 0)
 	for _, chProgList := range chProgLists {
@@ -229,7 +254,8 @@ func getXmlEPG(chProgLists []iptv.ChannelProgramList) *XmlEPG {
 		}
 
 		for _, dateProgList := range chProgList.DateProgramList {
-			if len(dateProgList.ProgramList) == 0 {
+			if len(dateProgList.ProgramList) == 0 ||
+				(backDay > 0 && !backTime.Before(dateProgList.Date)) {
 				continue
 			}
 			for _, program := range dateProgList.ProgramList {

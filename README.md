@@ -106,14 +106,22 @@ http://IP:PORT/epg/json?ch={name}&date={date}
 * **xmltv格式EPG**
 
 ```
-http://IP:PORT/epg/xml
+http://IP:PORT/epg/xml?backDay={backDay}
 ```  
+
+参数说明：
+
+1. backDay：可选保留最近多少天的节目单，**非必填，缺省为查全部**。
 
 * **xmltv格式EPG（gzip压缩）**
 
 ```
-http://IP:PORT/epg/xml.gz
+http://IP:PORT/epg/xml.gz?backDay={backDay}
 ```  
+
+参数说明：
+
+1. backDay：参数说明同上。
 
 ## 免责声明
 
