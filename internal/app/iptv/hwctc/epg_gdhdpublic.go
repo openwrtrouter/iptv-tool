@@ -45,7 +45,7 @@ func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Tok
 		dateStr := date.Format("20060102")
 
 		// 获取指定日期的节目单列表
-		dateProgram, err := c.getGdhdpublicChannelDateProgram(ctx, token, channel.ChannelID, dateStr)
+		programList, err := c.getGdhdpublicChannelDateProgram(ctx, token, channel.ChannelID, dateStr)
 		if err != nil {
 			if errors.Is(err, ErrEPGApiNotFound) {
 				return nil, err
@@ -54,7 +54,10 @@ func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Tok
 			continue
 		}
 
-		dateProgramList = append(dateProgramList, *dateProgram)
+		dateProgramList = append(dateProgramList, iptv.DateProgram{
+			Date:        date,
+			ProgramList: programList,
+		})
 	}
 
 	return &iptv.ChannelProgramList{
@@ -65,7 +68,7 @@ func (c *Client) getGdhdpublicChannelProgramList(ctx context.Context, token *Tok
 }
 
 // getGdhdpublicChannelDateProgram 获取指定频道的某日期的节目单列表
-func (c *Client) getGdhdpublicChannelDateProgram(ctx context.Context, token *Token, channelId string, dateStr string) (*iptv.DateProgram, error) {
+func (c *Client) getGdhdpublicChannelDateProgram(ctx context.Context, token *Token, channelId string, dateStr string) ([]iptv.Program, error) {
 	// 创建请求
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet,
 		fmt.Sprintf("http://%s/EPG/jsp/gdhdpublic/Ver.3/common/data.jsp", c.host), nil)
@@ -116,7 +119,7 @@ func (c *Client) getGdhdpublicChannelDateProgram(ctx context.Context, token *Tok
 }
 
 // parseGdhdpublicChannelDateProgram 解析频道节目单列表
-func parseGdhdpublicChannelDateProgram(rawData []byte) (*iptv.DateProgram, error) {
+func parseGdhdpublicChannelDateProgram(rawData []byte) ([]iptv.Program, error) {
 	// 解析json
 	var resp gdhdpublicChannelProgramListResult
 	if err := json.Unmarshal(rawData, &resp); err != nil {
@@ -147,15 +150,5 @@ func parseGdhdpublicChannelDateProgram(rawData []byte) (*iptv.DateProgram, error
 			EndTime:         eTime.Format("15:04"),
 		})
 	}
-
-	beginTime, err := time.Parse("20060102150405", programList[0].BeginTimeFormat)
-	if err != nil {
-		return nil, err
-	}
-	// 时间取整到天
-	date := time.Date(beginTime.Year(), beginTime.Month(), beginTime.Day(), 0, 0, 0, 0, beginTime.Location())
-	return &iptv.DateProgram{
-		Date:        date,
-		ProgramList: programList,
-	}, nil
+	return programList, nil
 }

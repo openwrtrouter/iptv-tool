@@ -93,6 +93,7 @@ func parseLiveplayChannelProgramList(rawData []byte) ([]iptv.DateProgram, error)
 		return nil, ErrChProgListIsEmpty
 	}
 
+	now := time.Now()
 	// 遍历多个日期的节目单
 	dateProgramList := make([]iptv.DateProgram, 0, len(dateProgList))
 	for _, rawProgList := range dateProgList {
@@ -149,7 +150,7 @@ func parseLiveplayChannelProgramList(rawData []byte) ([]iptv.DateProgram, error)
 			return nil, err
 		}
 		// 时间取整到天
-		date := time.Date(beginTime.Year(), beginTime.Month(), beginTime.Day(), 0, 0, 0, 0, beginTime.Location())
+		date := time.Date(beginTime.Year(), beginTime.Month(), beginTime.Day(), 0, 0, 0, 0, now.Location())
 		dateProgramList = append(dateProgramList, iptv.DateProgram{
 			Date:        date,
 			ProgramList: programList,
