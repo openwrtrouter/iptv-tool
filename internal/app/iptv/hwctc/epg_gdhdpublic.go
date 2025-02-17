@@ -133,11 +133,11 @@ func parseGdhdpublicChannelDateProgram(rawData []byte) ([]iptv.Program, error) {
 	// 遍历单个日期中的节目单
 	programList := make([]iptv.Program, 0, len(resp.Result))
 	for _, rawProg := range resp.Result {
-		bTime, err := time.Parse(time.DateTime, rawProg.Day+" "+rawProg.Time)
+		bTime, err := time.ParseInLocation(time.DateTime, rawProg.Day+" "+rawProg.Time, time.Local)
 		if err != nil {
 			return nil, err
 		}
-		eTime, err := time.Parse(time.DateTime, rawProg.Day+" "+rawProg.Endtime)
+		eTime, err := time.ParseInLocation(time.DateTime, rawProg.Day+" "+rawProg.Endtime, time.Local)
 		if err != nil {
 			return nil, err
 		}

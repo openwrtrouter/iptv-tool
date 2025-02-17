@@ -59,7 +59,7 @@ func GetJsonEPG(c *gin.Context) {
 	}
 
 	// 解析日期
-	date, err := time.Parse("2006-01-02", dateStr)
+	date, err := time.ParseInLocation("2006-01-02", dateStr, time.Local)
 	if err != nil {
 		logger.Error("Date format error", zap.Error(err))
 		c.Status(http.StatusBadRequest)

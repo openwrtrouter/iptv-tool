@@ -93,7 +93,6 @@ func parseLiveplayChannelProgramList(rawData []byte) ([]iptv.DateProgram, error)
 		return nil, ErrChProgListIsEmpty
 	}
 
-	now := time.Now()
 	// 遍历多个日期的节目单
 	dateProgramList := make([]iptv.DateProgram, 0, len(dateProgList))
 	for _, rawProgList := range dateProgList {
@@ -127,7 +126,7 @@ func parseLiveplayChannelProgramList(rawData []byte) ([]iptv.DateProgram, error)
 				// IPTV返回的结束时间为0点的节目单存在BUG，endTimeFormat错误设置为了当天的零点而不是第二天的零点
 				// BUG数据示例：{"beginTimeFormat":"20241130232400","isPlayable":"0","programName":"典籍里的中国Ⅱ(6)","contentId":"755597800","index":"335","startTime":"23:24","endTime":"00:00","channelId":"658582938","endTimeFormat":"20241130000000"}
 				if (beginTimeFormatStr[:8] + "000000") == endTimeFormatStr {
-					endTimeFormat, err := time.Parse("20060102150405", endTimeFormatStr)
+					endTimeFormat, err := time.ParseInLocation("20060102150405", endTimeFormatStr, time.Local)
 					if err != nil {
 						return nil, err
 					}
@@ -145,12 +144,12 @@ func parseLiveplayChannelProgramList(rawData []byte) ([]iptv.DateProgram, error)
 			})
 		}
 
-		beginTime, err := time.Parse("20060102150405", programList[0].BeginTimeFormat)
+		beginTime, err := time.ParseInLocation("20060102150405", programList[0].BeginTimeFormat, time.Local)
 		if err != nil {
 			return nil, err
 		}
 		// 时间取整到天
-		date := time.Date(beginTime.Year(), beginTime.Month(), beginTime.Day(), 0, 0, 0, 0, now.Location())
+		date := time.Date(beginTime.Year(), beginTime.Month(), beginTime.Day(), 0, 0, 0, 0, beginTime.Location())
 		dateProgramList = append(dateProgramList, iptv.DateProgram{
 			Date:        date,
 			ProgramList: programList,
