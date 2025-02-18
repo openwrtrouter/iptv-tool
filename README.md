@@ -25,11 +25,7 @@ IPTV工具，功能列表如下：
 
 说明：-a后面指定Authenticator，待运行完毕后会在当前目录下生成key.txt文件，其中可能找到很多key，任意一个均可使用(文件中Find
 Key后面的即是)。
-具体命令参数说明可通过命令查看：
-
-```
-./iptv key -h
-```
+更多参数说明可通过命令`./iptv key -h`查看。
 
 * 直接生成m3u直播源文件
 
@@ -37,25 +33,21 @@ Key后面的即是)。
 ./iptv channel -f m3u -u http://192.168.3.1:4022
 ```
 
-说明：运行完毕后会在当前目录下生成iptv.m3u文件，通过-u参数指定软路由的udpxy的http地址
-更多命令参数说明可通过命令查看
-
-```
-./iptv channel -h
-```
+说明：运行完毕后会在当前目录下生成iptv.m3u文件，通过-u参数指定软路由的udpxy的http地址。
+更多参数说明可通过命令`./iptv channel -h`查看。
 
 * 启动HTTP服务，提供在线m3u和epg接口：
 
 ```
 ./iptv serve -i 24h -p 8088 -u http://192.168.3.1:4022
 ```
-
-说明：-i指定频道和EPG更新间隔时间，-p指定启动的http服务的端口，-u指定udpxy的http地址
-更多命令参数说明可通过命令查看
-
+或
 ```
-./iptv serve -h
+./iptv serve -i 24h -p 8088 -u inner=http://192.168.3.1:4022
 ```
+
+说明：-i指定频道和EPG更新间隔时间，-p指定启动的http服务的端口，-u指定udpxy的http地址。
+更多参数说明可通过命令`./iptv serve -h`查看。
 
 ### HTTP API
 
