@@ -5,7 +5,8 @@ STOP=20
 IPTV_HOME=/opt/iptv
 
 start(){
-        nohup $IPTV_HOME/iptv serve -i 24h -p 8088 -u http://192.168.3.1:4022 > /dev/null 2>&1 &
+        # Example
+        nohup $IPTV_HOME/iptv serve -i 24h -p 8088 -u inner=http://192.168.3.1:4022 > /dev/null 2>&1 &
 }
 
 stop(){
@@ -15,5 +16,6 @@ stop(){
 
 restart(){
         kill -9 `ps | grep '$IPTV_HOME/iptv' | grep -v 'grep' | awk '{print $1}'`
-        nohup $IPTV_HOME/iptv serve -i 24h -p 8088 -u http://192.168.3.1:4022 > /dev/null 2>&1 &
+        # Example
+        nohup $IPTV_HOME/iptv serve -i 24h -p 8088 -u inner=http://192.168.3.1:4022 > /dev/null 2>&1 &
 }
