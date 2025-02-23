@@ -76,7 +76,7 @@ func GetJsonEPG(c *gin.Context) {
 	// 如果缓存的节目单列表为空则直接返回空数据
 	chProgLists := *epgPtr.Load()
 	if len(chProgLists) == 0 {
-		c.JSON(http.StatusOK, &emptyResp)
+		c.PureJSON(http.StatusOK, &emptyResp)
 		return
 	}
 
@@ -89,7 +89,7 @@ func GetJsonEPG(c *gin.Context) {
 		}
 	}
 	if tagerChProgList == nil || len(tagerChProgList.DateProgramList) == 0 {
-		c.JSON(http.StatusOK, &emptyResp)
+		c.PureJSON(http.StatusOK, &emptyResp)
 		return
 	}
 
@@ -111,7 +111,7 @@ func GetJsonEPG(c *gin.Context) {
 	}
 
 	// 返回最终响应
-	c.JSON(http.StatusOK, &ChannelDateJsonEPG{
+	c.PureJSON(http.StatusOK, &ChannelDateJsonEPG{
 		ChannelName: chName,
 		Date:        dateStr,
 		EPGData:     dateEPGData,
