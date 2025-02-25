@@ -33,6 +33,8 @@ func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string, multicastFi
 		return "", errors.New("no channels found")
 	}
 
+	catchupSource = strings.TrimLeft(catchupSource, "?&")
+
 	currDir, err := util.GetCurrentAbPathByExecutable()
 	if err != nil {
 		return "", err
@@ -64,8 +66,15 @@ func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string, multicastFi
 		}
 		// 设置频道回看参数
 		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 && channel.TimeShiftURL != nil {
+			timeShiftURLStr := channel.TimeShiftURL.String()
+			if channel.TimeShiftURL.RawQuery != "" {
+				timeShiftURLStr += "&" + catchupSource
+			} else {
+				timeShiftURLStr += "?" + catchupSource
+			}
+
 			m3uLineSb.WriteString(fmt.Sprintf(" catchup=\"%s\" catchup-source=\"%s\" catchup-days=\"%d\"",
-				"default", channel.TimeShiftURL.String()+catchupSource, int64(channel.TimeShiftLength.Hours()/24)))
+				"default", timeShiftURLStr, int64(channel.TimeShiftLength.Hours()/24)))
 		}
 		// 设置频道分组和名称
 		m3uLineSb.WriteString(fmt.Sprintf(" group-title=\"%s\",%s\n%s\n",
