@@ -14,7 +14,7 @@ IPTV工具，功能列表如下：
 
 ## 配置说明
 
-详细说明参见配置文件[config.yml](config.yml)
+详细说明参见配置文件[config.yml](./config.yml)
 
 ## 使用介绍
 
@@ -122,6 +122,10 @@ http://IP:PORT/epg/xml.gz?backDay={backDay}
 #### 参数说明
 
 * backDay：参数说明同上。
+
+## 帮助
+
+* [在OpenWrt中设置自启动](./docs/autostart.md)
 
 # 免责声明
 
