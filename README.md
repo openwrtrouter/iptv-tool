@@ -1,4 +1,7 @@
-## iptv-tool
+# iptv-tool
+
+![GitHub Release](https://img.shields.io/github/v/release/super321/iptv-tool?logo=github)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/super321/iptv-tool/total?logo=github)
 
 IPTV工具，功能列表如下：
 
@@ -9,11 +12,11 @@ IPTV工具，功能列表如下：
     * 支持m3u的catchup回看参数
 * 提供EPG在线接口，支持xmltv和json两种格式。
 
-### 配置说明
+## 配置说明
 
 详细说明参见配置文件[config.yml](config.yml)
 
-### 使用介绍
+## 使用介绍
 
 将config.yml配置文件与工具放在一起，然后运行工具即可，具体运行命令如下：
 
@@ -49,26 +52,26 @@ Key后面的即是)。
 说明：-i指定频道和EPG更新间隔时间，-p指定启动的http服务的端口，-u指定udpxy的http地址。
 更多参数说明可通过命令`./iptv serve -h`查看。
 
-### HTTP API
+## HTTP API
 
-* **m3u格式直播源在线接口**
+### m3u格式直播源在线接口
 
 ```
 http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}&udpxy={udpxy}
 ```
 
-参数说明：
+#### 参数说明
 
-1. csFormat：可指定回看catchup-source的请求格式，**非必填。可选值如下**：
+* csFormat：可指定回看catchup-source的请求格式，**非必填。可选值如下**：
 
 | 值 | 是否缺省 | 说明                                                    |
 |---|------|-------------------------------------------------------|
 | 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
 | 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
 
-2. multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。**非必填，缺省为`true`**。
+* multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。**非必填，缺省为`true`**。
 
-3. udpxy：当通过启动参数`-u`或`--udpxy`配置了包含内外网的多个udpxy的URL地址时，可通过该参数指定当前m3u所使用的地址。
+* udpxy：当通过启动参数`-u`或`--udpxy`配置了包含内外网的多个udpxy的URL地址时，可通过该参数指定当前m3u所使用的地址。
    **非必填，缺省为其中任意一个URL地址**<br/>
 
    > 例如，若启动参数配置为：<br/>
@@ -77,45 +80,44 @@ http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}&udpxy={udpx
    > * `/channel/m3u?udpxy=outer`则使用udpxy的外网地址。
    > * `/channel/m3u?udpxy=notexist`若指定的名称不存在，则使用频道的原始地址。
 
-* **txt格式直播源在线接口**
+### txt格式直播源在线接口
 
 ```
 http://IP:PORT/channel/txt?multiFirst={multiFirst}&udpxy={udpxy}
 ```
 
-参数说明：
+#### 参数说明
 
-1. multiFirst：参数说明同上。
+* multiFirst：参数说明同上。
+* udpxy：参数说明同上。
 
-2. udpxy：参数说明同上。
-
-* **json格式EPG**
+### json格式EPG
 
 ```
 http://IP:PORT/epg/json?ch={name}&date={date}
 ```  
 
-* **xmltv格式EPG**
+### xmltv格式EPG
 
 ```
 http://IP:PORT/epg/xml?backDay={backDay}
 ```  
 
-参数说明：
+#### 参数说明
 
-1. backDay：可选保留最近多少天的节目单，**非必填，缺省为查全部**。
+* backDay：可选保留最近多少天的节目单，**非必填，缺省为查全部**。
 
-* **xmltv格式EPG（gzip压缩）**
+### xmltv格式EPG（gzip压缩）
 
 ```
 http://IP:PORT/epg/xml.gz?backDay={backDay}
 ```  
 
-参数说明：
+#### 参数说明
 
-1. backDay：参数说明同上。
+* backDay：参数说明同上。
 
-## 免责声明
+# 免责声明
 
 在使用本项目之前，请仔细阅读以下免责声明：
 
