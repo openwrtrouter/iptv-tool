@@ -54,7 +54,13 @@ Key后面的即是)。
 
 ## HTTP API
 
-### m3u格式直播源在线接口
+* [m3u格式直播源](#m3u格式直播源)
+* [txt格式直播源](#txt格式直播源)
+* [json格式EPG](#json格式EPG)
+* [xmltv格式EPG](#xmltv格式EPG)
+* [xmltv格式EPG（gzip压缩）](#xmltv格式epggzip压缩)
+
+### m3u格式直播源
 
 ```
 http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}&udpxy={udpxy}
@@ -80,7 +86,7 @@ http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}&udpxy={udpx
    > * `/channel/m3u?udpxy=outer`则使用udpxy的外网地址。
    > * `/channel/m3u?udpxy=notexist`若指定的名称不存在，则使用频道的原始地址。
 
-### txt格式直播源在线接口
+### txt格式直播源
 
 ```
 http://IP:PORT/channel/txt?multiFirst={multiFirst}&udpxy={udpxy}
