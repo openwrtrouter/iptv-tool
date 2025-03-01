@@ -23,8 +23,8 @@ func init() {
 	err = logging.InitLogger(&logging.LogConfig{
 		Level:      zapcore.InfoLevel,
 		FileName:   logFile,
-		MaxSize:    100,
-		MaxBackups: 10,
+		MaxSize:    30,
+		MaxBackups: 3,
 		IsStdout:   true,
 	})
 	if err != nil {
