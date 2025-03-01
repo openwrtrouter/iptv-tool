@@ -1,7 +1,7 @@
 # iptv-tool
 
-![GitHub Release](https://img.shields.io/github/v/release/super321/iptv-tool?logo=github)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/super321/iptv-tool/total?logo=github)
+[![GitHub Release](https://img.shields.io/github/v/release/super321/iptv-tool?logo=github)](https://github.com/super321/iptv-tool/releases/latest)
+[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/super321/iptv-tool/total?logo=github)](https://github.com/super321/iptv-tool/releases/latest)
 
 IPTV工具，功能列表如下：
 
