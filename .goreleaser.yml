@@ -14,13 +14,22 @@ builds:
       - windows
       - darwin
       - linux
+      - freebsd
     goarch:
       - amd64
       - arm
       - arm64
+      - mips
+      - mipsle
+      - mips64
+      - mips64le
     goarm:
-      - 6
-      - 7
+      - '5'
+      - '6'
+      - '7'
+    gomips:
+      - hardfloat
+      - softfloat
     ignore:
       - goos: windows
         goarch: arm
@@ -39,6 +48,7 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Mips }}_{{ .Mips }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     wrap_in_directory: true
     format_overrides:
