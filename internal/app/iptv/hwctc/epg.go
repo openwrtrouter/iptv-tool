@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"iptv/internal/app/iptv"
+	"slices"
 
 	"go.uber.org/zap"
 )
@@ -60,6 +61,11 @@ func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.C
 		}
 
 		if progList != nil && len(progList.DateProgramList) > 0 {
+			// 对频道的节目单按日期升序排序
+			slices.SortFunc(progList.DateProgramList, func(a, b iptv.DateProgram) int {
+				return a.Date.Compare(b.Date)
+			})
+
 			epg = append(epg, *progList)
 		}
 	}
