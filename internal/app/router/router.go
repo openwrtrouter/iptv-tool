@@ -20,7 +20,8 @@ import (
 var (
 	logger *zap.Logger
 
-	udpxyURLs map[string]string
+	udpxyURLs      map[string]string
+	catchupSources map[string]string
 )
 
 func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration, udpxyURLCfg string) (*gin.Engine, error) {
@@ -28,9 +29,6 @@ func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration,
 	logger = zap.L()
 
 	gin.SetMode(gin.ReleaseMode)
-
-	// 缓存udpxy配置
-	udpxyURLs = parseUdpxyURLs(udpxyURLCfg)
 
 	// 获取程序运行的当前路径
 	currDir, err := util.GetCurrentAbPathByExecutable()
@@ -52,6 +50,12 @@ func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration,
 
 	// 执行定时任务
 	Schedule(ctx, iptvClient, interval)
+
+	// 缓存udpxy配置
+	udpxyURLs = parseUdpxyURLs(udpxyURLCfg)
+
+	// 缓存回看请求参数配置
+	catchupSources = conf.Catchup.Sources
 
 	// 创建 Gin 路由引擎
 	r := gin.New()

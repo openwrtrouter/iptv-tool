@@ -65,7 +65,8 @@ func ToM3UFormat(channels []Channel, udpxyURL, catchupSource string, multicastFi
 			}
 		}
 		// 设置频道回看参数
-		if channel.TimeShift == "1" && channel.TimeShiftLength > 0 && channel.TimeShiftURL != nil {
+		if catchupSource != "" &&
+			channel.TimeShift == "1" && channel.TimeShiftLength > 0 && channel.TimeShiftURL != nil {
 			var chCatchup, chCatchupSource string
 			if isMulticastCh {
 				chCatchup = "default"
@@ -156,7 +157,7 @@ func ToPLSFormat(channels []Channel, udpxyURL string, multicastFirst bool) (stri
 		// 设置频道URL
 		sb.WriteString(fmt.Sprintf("File%d=%s\n", entryIndex, channelURLStr))
 		// 设置频道名称
-		sb.WriteString(fmt.Sprintf("Title%d=%s\n", entryIndex, channel.ChannelName))
+		sb.WriteString(fmt.Sprintf("Title%d=%s\n\n", entryIndex, channel.ChannelName))
 	}
 	sb.WriteString(fmt.Sprintf("NumberOfEntries=%d\n", len(channels)))
 	sb.WriteString("Version=2\n")

@@ -57,6 +57,12 @@ logos:
     name: "CETV$G1"
   - rule: "^(.+?)(标清|高清|超清)$" # 通用规则，去掉多余内容
     name: "$G1"
+# 回看请求参数配置
+catchup:
+  # 自定义配置回看请求的参数
+  sources:
+    0: "playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}"
+    1: "playseek={utc:YmdHMS}-{utcend:YmdHMS}"
 
 ###############################################
 # hw平台相关设置

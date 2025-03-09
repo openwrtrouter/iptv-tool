@@ -44,7 +44,9 @@ Key后面的即是)。
 ```
 ./iptv serve -i 24h -p 8088 -u http://192.168.3.1:4022
 ```
+
 或
+
 ```
 ./iptv serve -i 24h -p 8088 -u inner=http://192.168.3.1:4022
 ```
@@ -69,23 +71,37 @@ http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}&udpxy={udpx
 
 #### 参数说明
 
-* csFormat：可指定回看catchup-source的请求格式，**非必填。可选值如下**：
+* csFormat：可指定回看catchup-source的请求格式，支持通过配置文件[config.yml](./config.yml)中的`catchup.sources`进行自定义配置。
+  **非必填，缺省为其中任意一个**。
 
-| 值 | 是否缺省 | 说明                                                    |
-|---|------|-------------------------------------------------------|
-| 0 | 是    | `?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
-| 1 | 否    | `?playseek={utc:YmdHMS}-{utcend:YmdHMS}`              |
+  > 例如，若config.yml部分内容为：<br/>
+  > ```
+  > catchup:
+  >   sources:
+  >     diyp: "playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}"
+  >     kodi: "playseek={utc:YmdHMS}-{utcend:YmdHMS}"
+  > ```
+  > * `/channel/m3u?csFormat=diyp`则使用`playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}`。
+  > * `/channel/m3u?csFormat=kodi`则使用`playseek={utc:YmdHMS}-{utcend:YmdHMS}`。
+  > * `/channel/m3u?csFormat=notexist`若指定的名称不存在，则不生成catchup相关内容。
+
+  若未填写配置文件[config.yml](./config.yml)中的`catchup.sources`内容，则缺省使用以下内容：
+
+| 值 | 是否缺省 | 说明                                                  |
+|---|------|-----------------------------------------------------|
+| 0 | 是    | `playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}` |
+| 1 | 否    | `playseek={utc:YmdHMS}-{utcend:YmdHMS}`             |
 
 * multiFirst：当频道存在多个URL地址时，是否优先使用组播地址。可选值：`true`或`false`。**非必填，缺省为`true`**。
 
 * udpxy：当通过启动参数`-u`或`--udpxy`配置了包含内外网的多个udpxy的URL地址时，可通过该参数指定当前m3u所使用的地址。
-   **非必填，缺省为其中任意一个URL地址**<br/>
+  **非必填，缺省为其中任意一个URL地址**<br/>
 
-   > 例如，若启动参数配置为：<br/>
-   > `./iptv serve -u inner=http://192.168.1.1:4022,outer=http://udpxy.iptv.com:4022`
-   > * `/channel/m3u?udpxy=inner`则使用udpxy的内网地址。
-   > * `/channel/m3u?udpxy=outer`则使用udpxy的外网地址。
-   > * `/channel/m3u?udpxy=notexist`若指定的名称不存在，则使用频道的原始地址。
+  > 例如，若启动参数配置为：<br/>
+  > `./iptv serve -u inner=http://192.168.1.1:4022,outer=http://udpxy.iptv.com:4022`
+  > * `/channel/m3u?udpxy=inner`则使用udpxy的内网地址。
+  > * `/channel/m3u?udpxy=outer`则使用udpxy的外网地址。
+  > * `/channel/m3u?udpxy=notexist`若指定的名称不存在，则使用频道的原始地址。
 
 ### txt格式直播源
 

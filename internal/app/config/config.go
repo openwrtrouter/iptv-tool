@@ -21,6 +21,10 @@ type OptionChannelLogoRule struct {
 	Rule string `json:"rule" yaml:"rule"` // 台标匹配规则
 }
 
+type CatchupConfig struct {
+	Sources map[string]string `json:"sources" yaml:"sources"` // 回看请求的参数
+}
+
 type Config struct {
 	Key        string            `json:"key" yaml:"key"`               // 必填，8位数字，生成Authenticator的秘钥
 	ServerHost string            `json:"serverHost" yaml:"serverHost"` // 必填，HTTP请求的IPTV服务器地址端口
@@ -34,6 +38,8 @@ type Config struct {
 
 	OptionChLogoRuleList []OptionChannelLogoRule `json:"logos" yaml:"logos"` // 自定义台标匹配规则
 	ChLogoRuleList       []iptv.ChannelLogoRule  `json:"-" yaml:"-"`         // Validate()时进行填充
+
+	Catchup *CatchupConfig `json:"catchup" yaml:"catchup"` // 回看请求参数配置
 
 	HWCTC *hwctc.Config `json:"hwctc,omitempty" yaml:"hwctc,omitempty"` // hw平台相关设置
 }
@@ -108,6 +114,21 @@ func (c *Config) Validate() error {
 			Name: opLogoRule.Name,
 			Rule: rule,
 		})
+	}
+
+	// 回看请求参数
+	if c.Catchup == nil {
+		c.Catchup = &CatchupConfig{
+			Sources: map[string]string{
+				"0": "playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}",
+				"1": "playseek={utc:YmdHMS}-{utcend:YmdHMS}",
+			},
+		}
+	} else if len(c.Catchup.Sources) == 0 {
+		c.Catchup.Sources = map[string]string{
+			"0": "playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}",
+			"1": "playseek={utc:YmdHMS}-{utcend:YmdHMS}",
+		}
 	}
 
 	return nil
@@ -206,6 +227,12 @@ func CreateDefaultCfg(fPath string) error {
 			{
 				Rule: "^(.+?)(标清|高清|超清)$",
 				Name: "$G1",
+			},
+		},
+		Catchup: &CatchupConfig{
+			Sources: map[string]string{
+				"0": "playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}",
+				"1": "playseek={utc:YmdHMS}-{utcend:YmdHMS}",
 			},
 		},
 		HWCTC: &hwctc.Config{},

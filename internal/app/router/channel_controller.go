@@ -15,11 +15,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	diypCatchupSource string = "?playseek=${(b)yyyyMMddHHmmss}-${(e)yyyyMMddHHmmss}"
-	kodiCatchupSource string = "?playseek={utc:YmdHMS}-{utcend:YmdHMS}"
-)
-
 var (
 	// 缓存最新的频道列表数据
 	channelsPtr atomic.Pointer[[]iptv.Channel]
@@ -29,12 +24,16 @@ var (
 func GetM3UData(c *gin.Context) {
 	// 获取catchup-source格式
 	var catchupSource string
-	csFormat := c.DefaultQuery("csFormat", "0")
-	switch csFormat {
-	case "1":
-		catchupSource = kodiCatchupSource
-	default:
-		catchupSource = diypCatchupSource
+	csFormat := c.Query("csFormat")
+	if csFormat != "" {
+		// 如果取不到对应的catchup-source，则不生成catchup相关内容
+		catchupSource = catchupSources[csFormat]
+	} else {
+		// 若未指定，则默认随机取其中一个
+		for _, k := range util.SortedMapKeys(catchupSources) {
+			catchupSource = catchupSources[k]
+			break
+		}
 	}
 
 	// 是否优先是由组播地址
