@@ -102,6 +102,38 @@ func GetTXTData(c *gin.Context) {
 	c.String(http.StatusOK, txtContent)
 }
 
+// GetPLSData 查询直播源pls
+func GetPLSData(c *gin.Context) {
+	// 是否优先是由组播地址
+	multiFirstStr := c.DefaultQuery("multiFirst", "true")
+	multicastFirst, err := strconv.ParseBool(multiFirstStr)
+	if err != nil {
+		multicastFirst = true
+	}
+
+	// 获取指定的udpxy
+	udpxyName := c.Query("udpxy")
+	udpxyURL := getUdpxyURL(udpxyName)
+
+	channels := *channelsPtr.Load()
+	if len(channels) == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+
+	// 将获取到的频道列表转换为pls格式
+	content, err := iptv.ToPLSFormat(channels, udpxyURL, multicastFirst)
+	if err != nil {
+		logger.Error("Failed to convert channel list to pls format.", zap.Error(err))
+		// 返回响应
+		c.Status(http.StatusOK)
+		return
+	}
+
+	// 返回响应
+	c.String(http.StatusOK, content)
+}
+
 // getUdpxyURL 通过udpxy的名称来获取指定的URL地址
 func getUdpxyURL(udpxyName string) string {
 	var udpxyURL string

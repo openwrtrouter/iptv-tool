@@ -137,6 +137,32 @@ func ToTxtFormat(channels []Channel, udpxyURL string, multicastFirst bool) (stri
 	return sb.String(), nil
 }
 
+// ToPLSFormat 转换为pls(playlist)格式内容
+func ToPLSFormat(channels []Channel, udpxyURL string, multicastFirst bool) (string, error) {
+	if len(channels) == 0 {
+		return "", errors.New("no channels found")
+	}
+
+	var sb strings.Builder
+	sb.WriteString("[playlist]\n\n")
+	for i, channel := range channels {
+		// 根据指定条件，获取频道URL地址
+		channelURLStr, _, err := getChannelURLStr(channel.ChannelURLs, udpxyURL, multicastFirst)
+		if err != nil {
+			return "", err
+		}
+
+		entryIndex := i + 1
+		// 设置频道URL
+		sb.WriteString(fmt.Sprintf("File%d=%s\n", entryIndex, channelURLStr))
+		// 设置频道名称
+		sb.WriteString(fmt.Sprintf("Title%d=%s\n", entryIndex, channel.ChannelName))
+	}
+	sb.WriteString(fmt.Sprintf("NumberOfEntries=%d\n", len(channels)))
+	sb.WriteString("Version=2\n")
+	return sb.String(), nil
+}
+
 // getChannelURLStr 根据指定条件，获取频道URL地址
 func getChannelURLStr(channelURLs []url.URL, udpxyURL string, multicastFirst bool) (string, bool, error) {
 	if len(channelURLs) == 0 {

@@ -56,6 +56,7 @@ Key后面的即是)。
 
 * [m3u格式直播源](#m3u格式直播源)
 * [txt格式直播源](#txt格式直播源)
+* [pls格式直播源](#pls格式直播源)
 * [json格式EPG](#json格式EPG)
 * [xmltv格式EPG](#xmltv格式EPG)
 * [xmltv格式EPG（gzip压缩）](#xmltv格式epggzip压缩)
@@ -90,6 +91,17 @@ http://IP:PORT/channel/m3u?csFormat={format}&multiFirst={multiFirst}&udpxy={udpx
 
 ```
 http://IP:PORT/channel/txt?multiFirst={multiFirst}&udpxy={udpxy}
+```
+
+#### 参数说明
+
+* multiFirst：参数说明同上。
+* udpxy：参数说明同上。
+
+### pls格式直播源
+
+```
+http://IP:PORT/channel/pls?multiFirst={multiFirst}&udpxy={udpxy}
 ```
 
 #### 参数说明

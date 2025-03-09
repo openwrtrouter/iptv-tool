@@ -64,6 +64,8 @@ func NewEngine(ctx context.Context, conf *config.Config, interval time.Duration,
 	r.GET("/channel/m3u", GetM3UData)
 	// 查询直播源-txt格式
 	r.GET("/channel/txt", GetTXTData)
+	// 查询直播源-pls格式
+	r.GET("/channel/pls", GetPLSData)
 
 	// 查询EPG-json格式
 	r.GET("/epg/json", GetJsonEPG)
