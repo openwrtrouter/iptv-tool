@@ -295,7 +295,7 @@ func updateEPG(ctx context.Context, iptvClient iptv.Client) error {
 		return err
 	}
 
-	logger.Sugar().Infof("EPG data updated, rows: %d.", len(allChProgramList))
+	logger.Sugar().Infof("EPG data updated, total: %d.", len(allChProgramList))
 	// 更新缓存的频道列表
 	epgPtr.Store(&allChProgramList)
 

@@ -41,7 +41,7 @@ func (c *Client) getLiveplayChannelProgramList(ctx context.Context, token *Token
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusNotFound {
+	if resp.StatusCode == http.StatusNotFound || resp.StatusCode >= http.StatusInternalServerError {
 		return nil, ErrEPGApiNotFound
 	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("http status code: %d", resp.StatusCode)

@@ -18,10 +18,13 @@ var (
 const (
 	maxBackDay = 8
 
-	chProgAPILiveplay   = "liveplay_30"
-	chProgAPIGdhdpublic = "gdhdpublic"
-	chProgAPIVsp        = "vsp"
+	chProgAPILiveplay        = "liveplay_30"
+	chProgAPIGdhdpublic      = "gdhdpublic"
+	chProgAPIVsp             = "vsp"
+	chProgAPIStbEpg2023Group = "StbEpg2023Group"
 )
+
+type getChannelProgramListFunc func(ctx context.Context, token *Token, channel *iptv.Channel) (*iptv.ChannelProgramList, error)
 
 // GetAllChannelProgramList 获取所有频道的节目单列表
 func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.Channel) ([]iptv.ChannelProgramList, error) {
@@ -31,6 +34,26 @@ func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.C
 		return nil, err
 	}
 
+	var result []iptv.ChannelProgramList
+	switch c.config.ChannelProgramAPI {
+	case chProgAPILiveplay:
+		result, err = c.getAllChannelProgramList(ctx, channels, token, c.getLiveplayChannelProgramList)
+	case chProgAPIGdhdpublic:
+		result, err = c.getAllChannelProgramList(ctx, channels, token, c.getGdhdpublicChannelProgramList)
+	case chProgAPIVsp:
+		result, err = c.getAllChannelProgramList(ctx, channels, token, c.getVspChannelProgramList)
+	case chProgAPIStbEpg2023Group:
+		result, err = c.getStbEpg2023GroupAllChannelProgramList(ctx, channels, token)
+	default:
+		// 自动选择调用EPG的API接口
+		result, err = c.getAllChannelProgramListByAuto(ctx, channels, token)
+	}
+
+	return result, err
+}
+
+// getAllChannelProgramList 获取所有频道的节目单列表
+func (c *Client) getAllChannelProgramList(ctx context.Context, channels []iptv.Channel, token *Token, getChProgFunc getChannelProgramListFunc) ([]iptv.ChannelProgramList, error) {
 	epg := make([]iptv.ChannelProgramList, 0, len(channels))
 	for _, channel := range channels {
 		// 跳过不支持回看的频道
@@ -38,23 +61,10 @@ func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.C
 			continue
 		}
 
-		var progList *iptv.ChannelProgramList
-		switch c.config.ChannelProgramAPI {
-		case chProgAPILiveplay:
-			progList, err = c.getLiveplayChannelProgramList(ctx, token, &channel)
-		case chProgAPIGdhdpublic:
-			progList, err = c.getGdhdpublicChannelProgramList(ctx, token, &channel)
-		case chProgAPIVsp:
-			progList, err = c.getVspChannelProgramList(ctx, token, &channel)
-		default:
-			// 自动选择调用EPG的API接口
-			progList, err = c.getChannelProgramListByAuto(ctx, token, &channel)
-		}
-
+		progList, err := getChProgFunc(ctx, token, &channel)
 		if err != nil {
 			if errors.Is(err, ErrEPGApiNotFound) {
-				c.logger.Error("Failed to get channel program list.", zap.Error(err))
-				break
+				return nil, err
 			}
 			c.logger.Sugar().Warnf("Failed to get the program list for channel %s. Error: %v", channel.ChannelName, err)
 			continue
@@ -69,32 +79,39 @@ func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.C
 			epg = append(epg, *progList)
 		}
 	}
-
 	return epg, nil
 }
 
-// getChannelProgramListByAuto 自动选择调用EPG的API接口
-func (c *Client) getChannelProgramListByAuto(ctx context.Context, token *Token, channel *iptv.Channel) (*iptv.ChannelProgramList, error) {
-	progList, err := c.getLiveplayChannelProgramList(ctx, token, channel)
+// getAllChannelProgramListByAuto 自动选择调用EPG的API接口
+func (c *Client) getAllChannelProgramListByAuto(ctx context.Context, channels []iptv.Channel, token *Token) ([]iptv.ChannelProgramList, error) {
+	result, err := c.getAllChannelProgramList(ctx, channels, token, c.getLiveplayChannelProgramList)
 	if !errors.Is(err, ErrEPGApiNotFound) {
 		c.logger.Info("An available EPG API was found.", zap.String("channelProgramAPI", chProgAPILiveplay))
 		c.config.ChannelProgramAPI = chProgAPILiveplay
-		return progList, err
+		return result, err
 	}
 
-	progList, err = c.getGdhdpublicChannelProgramList(ctx, token, channel)
+	result, err = c.getAllChannelProgramList(ctx, channels, token, c.getGdhdpublicChannelProgramList)
 	if !errors.Is(err, ErrEPGApiNotFound) {
 		c.logger.Info("An available EPG API was found.", zap.String("channelProgramAPI", chProgAPIGdhdpublic))
 		c.config.ChannelProgramAPI = chProgAPIGdhdpublic
-		return progList, err
+		return result, err
 	}
 
-	progList, err = c.getVspChannelProgramList(ctx, token, channel)
+	result, err = c.getAllChannelProgramList(ctx, channels, token, c.getVspChannelProgramList)
 	if !errors.Is(err, ErrEPGApiNotFound) {
 		c.logger.Info("An available EPG API was found.", zap.String("channelProgramAPI", chProgAPIVsp))
 		c.config.ChannelProgramAPI = chProgAPIVsp
-		return progList, err
+		return result, err
 	}
 
+	result, err = c.getStbEpg2023GroupAllChannelProgramList(ctx, channels, token)
+	if !errors.Is(err, ErrEPGApiNotFound) {
+		c.logger.Info("An available EPG API was found.", zap.String("channelProgramAPI", chProgAPIStbEpg2023Group))
+		c.config.ChannelProgramAPI = chProgAPIStbEpg2023Group
+		return result, err
+	}
+
+	c.logger.Warn("No suitable EPG API found.")
 	return nil, err
 }

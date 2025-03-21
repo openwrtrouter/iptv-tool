@@ -17,7 +17,6 @@ import (
 
 type Token struct {
 	UserToken  string `json:"userToken"`
-	TempKey    string `json:"tempKey"`
 	Stbid      string `json:"stbid"`
 	JSESSIONID string `json:"jsessionid"`
 }
@@ -226,15 +225,14 @@ func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken stri
 	if err != nil {
 		return nil, err
 	}
-	regex := regexp.MustCompile("(?s)\"UserToken\" value=\"(.+?)\".+?\"tempKey\" value=\"(.*?)\".+?\"stbid\" value=\"(.*?)\"")
+	regex := regexp.MustCompile("(?s)\"UserToken\" value=\"(.+?)\".+?\"stbid\" value=\"(.*?)\"")
 	matches := regex.FindSubmatch(result)
-	if len(matches) != 4 {
+	if len(matches) != 3 {
 		return nil, errors.New("failed to parse userToken")
 	}
 	return &Token{
 		UserToken:  string(matches[1]),
-		TempKey:    string(matches[2]),
-		Stbid:      string(matches[3]),
+		Stbid:      string(matches[2]),
 		JSESSIONID: jsessionID,
 	}, nil
 }

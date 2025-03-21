@@ -97,6 +97,6 @@ hwctc:
   vip:
 
   # 获取EPG信息的API
-  # 目前支持3种："liveplay_30"，"gdhdpublic"或"vsp"
+  # 目前支持4种："liveplay_30"，"gdhdpublic"，"vsp"或"StbEpg2023Group"
   # 未设置时，将自动进行尝试。
   channelProgramAPI:

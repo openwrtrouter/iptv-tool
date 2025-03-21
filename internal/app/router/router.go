@@ -118,7 +118,7 @@ func initData(ctx context.Context, iptvClient iptv.Client) error {
 
 	// 更新节目单
 	if err := updateEPG(ctx, iptvClient); err != nil {
-		return err
+		logger.Error("Failed to update EPG.", zap.Error(err))
 	}
 	return nil
 }
