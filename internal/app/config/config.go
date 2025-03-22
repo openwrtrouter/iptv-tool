@@ -168,7 +168,7 @@ func CreateDefaultCfg(fPath string) error {
 			"Accept-Language":  "zh-CN,en-US;q=0.8",
 			"X-Requested-With": "com.fiberhome.iptv",
 		},
-		OptionChExcludeRule: "^.+?(画中画|单音轨|-体验)$",
+		OptionChExcludeRule: "^.*?(画中画|单音轨|-体验|\\(测试\\)|直播室\\d+)",
 		OptionChGroupRulesList: []OptionChannelGroupRules{
 			{
 				Name: "央视",
@@ -193,7 +193,13 @@ func CreateDefaultCfg(fPath string) error {
 				Rules: []string{
 					"^(SCTV|CDTV|四川乡村|峨眉电影).*?$",
 					"^(浙江|杭州|民生|钱江|教科影视|好易购|西湖|青少体育).+?$",
-					"^(湖北|武汉).+?$",
+					"^(福建|福州|厦门|漳州|泉州|三明|莆田|南平|龙岩|宁德).+?$",
+				},
+			},
+			{
+				Name: "付费",
+				Rules: []string{
+					".+?\\(VIP\\)$",
 				},
 			},
 			{
@@ -205,27 +211,15 @@ func CreateDefaultCfg(fPath string) error {
 		},
 		OptionChLogoRuleList: []OptionChannelLogoRule{
 			{
-				Rule: "^CCTV-?(.+?)(标清|高清|超清)?$",
-				Name: "CCTV$G1",
+				Rule: "^(.+?)-(.+?)(\\(?标清\\)?|\\(?高清\\)?|\\(?超清\\)?)$",
+				Name: "$G1$G2",
 			},
 			{
-				Rule: "^([^(热门)].+?)卫视(标清|高清|超清)?$",
+				Rule: "^([^(热门)].+?)卫视(\\(?标清\\)?|\\(?高清\\)?|\\(?超清\\)?)$",
 				Name: "$G1卫视",
 			},
 			{
-				Rule: "^CDTV-?(.+?)(标清|高清|超清)?$",
-				Name: "CDTV$G1",
-			},
-			{
-				Rule: "^SCTV-?(.+?)(标清|高清|超清)?$",
-				Name: "SCTV$G1",
-			},
-			{
-				Rule: "^CETV-?(.+?)(标清|高清|超清)?$",
-				Name: "CETV$G1",
-			},
-			{
-				Rule: "^(.+?)(标清|高清|超清)$",
+				Rule: "^(.+?)(\\(?标清\\)?|\\(?高清\\)?|\\(?超清\\)?|\\(?VIP\\)?)$",
 				Name: "$G1",
 			},
 		},
