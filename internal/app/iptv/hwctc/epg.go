@@ -22,6 +22,7 @@ const (
 	chProgAPIGdhdpublic      = "gdhdpublic"
 	chProgAPIVsp             = "vsp"
 	chProgAPIStbEpg2023Group = "StbEpg2023Group"
+	chProgAPIDefaulttrans2   = "defaulttrans2"
 )
 
 type getChannelProgramListFunc func(ctx context.Context, token *Token, channel *iptv.Channel) (*iptv.ChannelProgramList, error)
@@ -44,6 +45,8 @@ func (c *Client) GetAllChannelProgramList(ctx context.Context, channels []iptv.C
 		result, err = c.getAllChannelProgramList(ctx, channels, token, c.getVspChannelProgramList)
 	case chProgAPIStbEpg2023Group:
 		result, err = c.getStbEpg2023GroupAllChannelProgramList(ctx, channels, token)
+	case chProgAPIDefaulttrans2:
+		result, err = c.getAllChannelProgramList(ctx, channels, token, c.getDefaulttrans2ChannelProgramList)
 	default:
 		// 自动选择调用EPG的API接口
 		result, err = c.getAllChannelProgramListByAuto(ctx, channels, token)
@@ -109,6 +112,13 @@ func (c *Client) getAllChannelProgramListByAuto(ctx context.Context, channels []
 	if !errors.Is(err, ErrEPGApiNotFound) {
 		c.logger.Info("An available EPG API was found.", zap.String("channelProgramAPI", chProgAPIStbEpg2023Group))
 		c.config.ChannelProgramAPI = chProgAPIStbEpg2023Group
+		return result, err
+	}
+
+	result, err = c.getAllChannelProgramList(ctx, channels, token, c.getDefaulttrans2ChannelProgramList)
+	if !errors.Is(err, ErrEPGApiNotFound) {
+		c.logger.Info("An available EPG API was found.", zap.String("channelProgramAPI", chProgAPIDefaulttrans2))
+		c.config.ChannelProgramAPI = chProgAPIDefaulttrans2
 		return result, err
 	}
 
