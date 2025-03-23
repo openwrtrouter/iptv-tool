@@ -64,6 +64,11 @@ catchup:
 ###############################################
 # hw平台相关设置
 hwctc:
+  # 配置IPTV的供应商后缀
+  # 可选值：CTC（电信）, CU（联通）
+  # 未设置时，默认设置为CTC
+  providerSuffix:
+
   # "interfaceName"和"ip"至少填写一个，若都填写则优先使用"interfaceName"指定的接口对应的IPv4地址
   # 生成Authenticator所需的网络接口名称，可通过配置自动获取指定接口的IPv4地址。用于获取软路由上某接口被自动分配的IPTV线路的IP地址。
   interfaceName:
@@ -94,6 +99,6 @@ hwctc:
   vip:
 
   # 获取EPG信息的API
-  # 目前支持4种："liveplay_30"，"gdhdpublic"，"vsp"或"StbEpg2023Group"
+  # 可选值：liveplay_30, gdhdpublic, vsp, StbEpg2023Group, defaulttrans2
   # 未设置时，将自动进行尝试。
   channelProgramAPI:

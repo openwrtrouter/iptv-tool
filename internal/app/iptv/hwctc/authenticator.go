@@ -91,7 +91,7 @@ func (c *Client) authLoginHWCTC(ctx context.Context, referer string) (string, er
 
 	// 创建请求
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
-		fmt.Sprintf("http://%s/EPG/jsp/authLoginHWCTC.jsp", c.host), strings.NewReader(body.Encode()))
+		fmt.Sprintf("http://%s/EPG/jsp/authLoginHW%s.jsp", c.host, c.config.ProviderSuffix), strings.NewReader(body.Encode()))
 	if err != nil {
 		return "", err
 	}
@@ -186,14 +186,14 @@ func (c *Client) validAuthenticationHWCTC(ctx context.Context, encryptToken stri
 
 	// 创建请求
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost,
-		fmt.Sprintf("http://%s/EPG/jsp/ValidAuthenticationHWCTC.jsp", c.host), strings.NewReader(body.Encode()))
+		fmt.Sprintf("http://%s/EPG/jsp/ValidAuthenticationHW%s.jsp", c.host, c.config.ProviderSuffix), strings.NewReader(body.Encode()))
 	if err != nil {
 		return nil, err
 	}
 
 	// 设置请求头
 	c.setCommonHeaders(req)
-	referer := fmt.Sprintf("http://%s/EPG/jsp/authLoginHWCTC.jsp", c.host)
+	referer := fmt.Sprintf("http://%s/EPG/jsp/authLoginHW%s.jsp", c.host, c.config.ProviderSuffix)
 	req.Header.Set("Referer", referer)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
