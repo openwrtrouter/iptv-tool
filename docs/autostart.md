@@ -2,8 +2,9 @@
 
 ## 步骤
 
-1. 通过SSH客户端登录OpenWrt，执行以下命令下载自启动脚本。
+1. 通过SSH客户端登录OpenWrt，执行以下命令安装依赖并下载自启动脚本。
     ```bash
+    opkg update && opkg install coreutils-nohup
     cd /etc/init.d/
     curl -OJL https://raw.githubusercontent.com/super321/iptv-tool/main/scripts/iptv
     chmod 755 iptv
