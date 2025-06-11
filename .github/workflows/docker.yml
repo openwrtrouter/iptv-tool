@@ -70,8 +70,8 @@ jobs:
           provenance: false
           tags: |
             docker.io/${{ env.DOCKER_HUB_REPO }}:${{ env.BUILD_VERSION }}
-            docker.io//${{ env.DOCKER_HUB_REPO }}:${{ env.TAG_VERSION }}
-            docker.io//${{ env.DOCKER_HUB_REPO }}:/iptv-tool:latest
+            docker.io/${{ env.DOCKER_HUB_REPO }}:${{ env.TAG_VERSION }}
+            docker.io/${{ env.DOCKER_HUB_REPO }}:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
