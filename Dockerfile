@@ -1,22 +1,39 @@
-# 构建阶段
+# 使用多阶段构建
+# 第一阶段：构建应用
 FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
-WORKDIR /app
-COPY . .
-RUN go mod download
-RUN CGO_ENABLED=0 go build -o /iptv ./cmd/iptv/main.go
 
-# 运行阶段
-FROM alpine:3.18
 WORKDIR /app
+
+# 复制依赖文件
+COPY go.mod go.sum ./
+RUN go mod download
+
+# 复制源代码
+COPY . .
+
+# 构建应用
+ARG TARGETOS TARGETARCH TARGETVARIANT
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH GOARM=${TARGETVARIANT#v} \
+    go build -o /iptv ./cmd/iptv/main.go
+
+# 第二阶段：运行环境
+FROM alpine:3.19
+
+WORKDIR /app
+
+# 从构建阶段复制二进制文件和资源
 COPY --from=builder /iptv /app/iptv
 COPY config.yml /app/
 COPY logos /app/logos/
 
-# 可配置的环境变量
+# 设置默认环境变量
 ENV INTERVAL="24h" \
     PORT="8088" \
-    UPSTREAM_URL="http://192.168.3.1:4022"
+    URL="http://192.168.3.1:4022"
 
+# 暴露端口
 EXPOSE ${PORT}
+
+# 设置入口点
 ENTRYPOINT ["./iptv", "serve"]
-CMD ["-i", "${INTERVAL}", "-p", "${PORT}", "-u", "${UPSTREAM_URL}"]
+CMD ["-i", "${INTERVAL}", "-p", "${PORT}", "-u", "${URL}"]
