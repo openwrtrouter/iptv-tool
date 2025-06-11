@@ -38,6 +38,25 @@ builds:
       - goos: darwin
         goarch: arm
 
+
+dockers:
+  - image_templates:
+      - "docker.io/yuwenzhen/iptv-tool:{{ .Version }}"
+      - "docker.io/yuwenzhen/iptv-tool:latest"
+    dockerfile: Dockerfile
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--platform=linux/arm64"
+      - "--platform=linux/arm/v7"
+    goos: linux
+    goarch: amd64
+    files:
+      - config.yml
+      - logos
+    extra_files:
+      - config.yml
+      - logos
+
 checksum:
   name_template: "checksums.txt"
 
