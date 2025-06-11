@@ -26,40 +26,6 @@ builds:
       - goos: darwin
         goarch: arm
 
-dockers:
-  - dockerfile: Dockerfile
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/{{ .Arch }}{{ if eq .Arch \"arm\" }}v{{ .Arm }}{{ end }}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-    goos: linux
-    goarch:
-      - amd64
-      - arm64
-      - arm
-    goarm:
-      - '7'
-    image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-{{ .Arch }}{{ if eq .Arch \"arm\" }}v{{ .Arm }}{{ end }}"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-{{ .Arch }}{{ if eq .Arch \"arm\" }}v{{ .Arm }}{{ end }}"
-    extra_files:
-      - config.yml
-      - logos
-
-docker_manifests:
-  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}"
-    image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-amd64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-arm64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-armv7"
-  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest"
-    image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-amd64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-arm64"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-armv7"
-
 checksum:
   name_template: "checksums.txt"
 
@@ -70,13 +36,8 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Mips }}_{{ .Mips }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     wrap_in_directory: true
-    format_overrides:
-      - goos: windows
-        formats:
-        - "zip"
     builds_info:
       group: root
       owner: root
