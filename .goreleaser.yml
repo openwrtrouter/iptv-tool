@@ -27,16 +27,23 @@ builds:
         goarch: arm
 
 dockers:
-  - image_templates:
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}"
-      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}"
-    dockerfile: Dockerfile
+  - dockerfile: Dockerfile
     build_flag_templates:
       - "--pull"
       - "--platform=linux/{{ .Arch }}{{ if eq .Arch \"arm\" }}v{{ .Arm }}{{ end }}"
       - "--label=org.opencontainers.image.version={{.Version}}"
       - "--label=org.opencontainers.image.created={{.Date}}"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+    goos: linux
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - '7'
+    image_templates:
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-{{ .Arch }}{{ if eq .Arch \"arm\" }}v{{ .Arm }}{{ end }}"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-{{ .Arch }}{{ if eq .Arch \"arm\" }}v{{ .Arm }}{{ end }}"
     extra_files:
       - config.yml
       - logos
