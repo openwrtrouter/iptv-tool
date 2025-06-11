@@ -24,7 +24,7 @@ RUN apk add --no-cache ca-certificates tzdata
 
 # 从构建阶段复制二进制文件和资源
 COPY --from=builder /iptv /iptv
-COPY config.yml /config.yml
+COPY config.yml /data/config.yml
 COPY logos /logos
 
 # 设置默认环境变量
