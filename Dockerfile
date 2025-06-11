@@ -14,17 +14,18 @@ COPY . .
 # 构建应用
 ARG TARGETOS TARGETARCH TARGETVARIANT
 RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH GOARM=${TARGETVARIANT#v} \
-    go build -o /iptv ./cmd/iptv/main.go
+    go build -ldflags="-w -s" -o /iptv ./cmd/iptv/main.go
 
 # 第二阶段：运行环境
 FROM alpine:3.19
 
-WORKDIR /app
+# 安装必要的运行时依赖
+RUN apk add --no-cache ca-certificates tzdata
 
 # 从构建阶段复制二进制文件和资源
-COPY --from=builder /iptv /app/iptv
-COPY config.yml /app/
-COPY logos /app/logos/
+COPY --from=builder /iptv /iptv
+COPY config.yml /config.yml
+COPY logos /logos
 
 # 设置默认环境变量
 ENV INTERVAL="24h" \
@@ -35,5 +36,5 @@ ENV INTERVAL="24h" \
 EXPOSE ${PORT}
 
 # 设置入口点
-ENTRYPOINT ["./iptv", "serve"]
+ENTRYPOINT ["/iptv", "serve"]
 CMD ["-i", "${INTERVAL}", "-p", "${PORT}", "-u", "${URL}"]
