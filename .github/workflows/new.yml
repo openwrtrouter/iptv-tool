@@ -5,6 +5,14 @@ on:
     tags:
       - 'v*'
 
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      build_version:
+        description: '版本号'
+        required: true
+        default: 'v1.0.0'
+        
 jobs:
   build:
     runs-on: ubuntu-latest
