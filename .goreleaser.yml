@@ -50,9 +50,6 @@ dockers:
       - "--platform=linux/arm/v7"
     goos: linux
     goarch: amd64
-    files:
-      - config.yml
-      - logos
     extra_files:
       - config.yml
       - logos
