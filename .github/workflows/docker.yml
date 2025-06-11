@@ -42,8 +42,8 @@ jobs:
           distribution: goreleaser
           version: '~> v2'
           args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+       # env:
+       #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 登录到 Docker Hub
       - name: Login to Docker Hub
