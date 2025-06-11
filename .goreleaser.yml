@@ -37,22 +37,20 @@ builds:
         goarch: arm64
       - goos: darwin
         goarch: arm
-
-
 dockers:
   - image_templates:
-      - "docker.io/yuwenzhen/iptv-tool:{{ .Version }}"
-      - "docker.io/yuwenzhen/iptv-tool:latest"
+      - "ghcr.io/{{ .Env.REPO_OWNER }}/{{ .ProjectName }}:{{ .Version }}"
+      - "ghcr.io/{{ .Env.REPO_OWNER }}/{{ .ProjectName }}:latest"
     dockerfile: Dockerfile
+    use: buildx  # 明确使用 buildx
     build_flag_templates:
-      - "--platform=linux/amd64"
-      - "--platform=linux/arm64"
-      - "--platform=linux/arm/v7"
+      - "--platform=linux/amd64,linux/arm64,linux/arm/v7"
+      - "--push"  # 添加 push 标志
     goos: linux
     goarch: amd64
     extra_files:
       - config.yml
-      - logos
+      - logos/
 
 checksum:
   name_template: "checksums.txt"
