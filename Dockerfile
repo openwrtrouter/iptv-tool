@@ -1,6 +1,6 @@
 # 使用多阶段构建
 # 第一阶段：构建应用
-FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
