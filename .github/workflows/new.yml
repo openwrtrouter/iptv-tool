@@ -74,8 +74,8 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/iptv:${{ env.BUILD_VERSION }}
-            ${{ secrets.DOCKER_USERNAME }}/iptv:latest
+            ${{ secrets.DOCKER_USERNAME }}/iptv-tool:${{ env.BUILD_VERSION }}
+            ${{ secrets.DOCKER_USERNAME }}/iptv-tool:latest
           build-args: |
             INTERVAL=24h
             PORT=8088
