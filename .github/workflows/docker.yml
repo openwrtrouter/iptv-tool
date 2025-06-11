@@ -13,8 +13,8 @@ on:
         default: 'v1.0.0'
 
 env:
-  DOCKER_HUB_REPO: your-dockerhub-username/your-repo-name  # 修改为你的 Docker Hub 仓库
-  DOCKER_IMAGE_TAG: ${{ github.ref_name }}                 # 使用 Git 标签作为镜像标签
+  DOCKER_HUB_REPO: yuwenzhen/iptv-tool  # 修改为你的 Docker Hub 仓库
+  TAG_VERSION: ${{ github.ref_name }}                 # 使用 Git 标签作为镜像标签
 
 permissions:
   contents: write
@@ -63,11 +63,9 @@ jobs:
           push: true
           provenance: false
           tags: |
-            docker.io/${{ secrets.DOCKER_USERNAME }}/iptv-tool:${{ env.MAJOR_VERSION }}
-            docker.io/${{ secrets.DOCKER_USERNAME }}/iptv-tool:${{ env.MINOR_VERSION }}
-            docker.io/${{ secrets.DOCKER_USERNAME }}/iptv-tool:${{ env.BUILD_VERSION }}
-            docker.io/${{ secrets.DOCKER_USERNAME }}/iptv-tool:${{ env.TAG_VERSION }}
-            docker.io/${{ secrets.DOCKER_USERNAME }}/iptv-tool:latest
+            docker.io/${{ env.DOCKER_HUB_REPO }}:${{ env.BUILD_VERSION }}
+            docker.io//${{ env.DOCKER_HUB_REPO }}:${{ env.TAG_VERSION }}
+            docker.io//${{ env.DOCKER_HUB_REPO }}:/iptv-tool:latest
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
