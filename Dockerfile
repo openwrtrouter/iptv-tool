@@ -1,10 +1,10 @@
-# 构建阶段
-FROM golang:1.21-alpine AS builder
+# 构建阶段 - 使用多平台基础镜像
+FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
 WORKDIR /app
 COPY . .
 RUN go build -o iptv .
 
-# 最终镜像
+# 最终镜像 - 使用多平台基础镜像
 FROM alpine:latest
 WORKDIR /app
 COPY --from=builder /app/iptv .
