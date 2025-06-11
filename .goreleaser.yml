@@ -11,21 +11,21 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-      - windows
-      - darwin
+     # - windows
+     # - darwin
       - linux
       - freebsd
     goarch:
       - amd64
       - arm
       - arm64
-      - mips
-      - mipsle
-      - mips64
-      - mips64le
+     # - mips
+    #  - mipsle
+     # - mips64
+     # - mips64le
     goarm:
-      - '5'
-      - '6'
+     # - '5'
+     # - '6'
       - '7'
     gomips:
       - hardfloat
