@@ -1,19 +1,22 @@
-# 构建阶段 - 使用多平台基础镜像
+# 构建阶段
 FROM --platform=$BUILDPLATFORM golang:1.21-alpine AS builder
 WORKDIR /app
 COPY . .
-RUN go build -o iptv .
+RUN go mod download
+RUN CGO_ENABLED=0 go build -o /iptv ./cmd/iptv/main.go
 
-# 最终镜像 - 使用多平台基础镜像
-FROM alpine:latest
+# 运行阶段
+FROM alpine:3.18
 WORKDIR /app
-COPY --from=builder /app/iptv .
-# 设置默认环境变量
-ENV INTERVAL=24h
-ENV PORT=8088
-ENV INNER_URL=http://192.168.3.1:4022
-# 暴露端口
-EXPOSE $PORT
-# 设置入口点
-ENTRYPOINT ["./iptv"]
-CMD ["serve", "-i", "${INTERVAL}", "-p", "${PORT}", "-u", "inner=${INNER_URL}"]
+COPY --from=builder /iptv /app/iptv
+COPY config.yml /app/
+COPY logos /app/logos/
+
+# 可配置的环境变量
+ENV INTERVAL="24h" \
+    PORT="8088" \
+    UPSTREAM_URL="http://192.168.3.1:4022"
+
+EXPOSE ${PORT}
+ENTRYPOINT ["./iptv", "serve"]
+CMD ["-i", "${INTERVAL}", "-p", "${PORT}", "-u", "${UPSTREAM_URL}"]
