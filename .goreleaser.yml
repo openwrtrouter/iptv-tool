@@ -46,11 +46,13 @@ dockers:
     build_flag_templates:
       - "--platform=linux/amd64,linux/arm64,linux/arm/v7"
       - "--push"  # 添加 push 标志
+      - "--builder=container"
     goos: linux
     goarch: amd64
     extra_files:
       - config.yml
       - logos/
+
 
 checksum:
   name_template: "checksums.txt"
