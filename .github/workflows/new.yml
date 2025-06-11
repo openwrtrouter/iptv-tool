@@ -38,7 +38,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-       - name: Set up build args
+      - name: Set up build args
         run: |
           echo "MAJOR_VERSION=${GITHUB_REF_NAME%%.*}" >> $GITHUB_ENV
           echo "MINOR_VERSION=${GITHUB_REF_NAME%.*}" >> $GITHUB_ENV
