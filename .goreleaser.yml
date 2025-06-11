@@ -11,25 +11,13 @@ builds:
     env:
       - CGO_ENABLED=0
     goos:
-     # - windows
-     # - darwin
       - linux
-    #  - freebsd
     goarch:
       - amd64
       - arm
       - arm64
-     # - mips
-    #  - mipsle
-     # - mips64
-     # - mips64le
     goarm:
-     # - '5'
-     # - '6'
       - '7'
-    gomips:
-      - hardfloat
-      - softfloat
     ignore:
       - goos: windows
         goarch: arm
@@ -37,22 +25,33 @@ builds:
         goarch: arm64
       - goos: darwin
         goarch: arm
+
 dockers:
   - image_templates:
-      - "ghcr.io/{{ .Env.REPO_OWNER }}/{{ .ProjectName }}:{{ .Version }}"
-      - "ghcr.io/{{ .Env.REPO_OWNER }}/{{ .ProjectName }}:latest"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}"
     dockerfile: Dockerfile
-    use: buildx  # 明确使用 buildx
     build_flag_templates:
-      - "--platform=linux/amd64,linux/arm64,linux/arm/v7"
-      - "--push"  # 添加 push 标志
-      - "--builder=container"
-    goos: linux
-    goarch: amd64
+      - "--pull"
+      - "--platform=linux/{{ .Arch }}{{ if eq .Arch \"arm\" }}v{{ .Arm }}{{ end }}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
     extra_files:
       - config.yml
-      - logos/
+      - logos
 
+docker_manifests:
+  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}"
+    image_templates:
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-amd64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-arm64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:{{ .Version }}-armv7"
+  - name_template: "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest"
+    image_templates:
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-amd64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-arm64"
+      - "docker.io/{{ .Env.DOCKERHUB_USERNAME }}/iptv:latest-armv7"
 
 checksum:
   name_template: "checksums.txt"
@@ -78,14 +77,15 @@ archives:
       - config.yml
       - src: "logos/*.png"
         dst: logos
+
 changelog:
   sort: asc
   groups:
     - title: Features
-      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      regexp: '^.*?feat($[[:word:]]+$)??!?:.+$'
       order: 0
     - title: "Bug fixes"
-      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      regexp: '^.*?fix($[[:word:]]+$)??!?:.+$'
       order: 1
     - title: Others
       order: 999
